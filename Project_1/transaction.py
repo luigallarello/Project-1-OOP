@@ -25,14 +25,14 @@ class Transaction():
             self.status = "Processed"
 
     def cancel_transaction(self):
-            if self.status == "Pending":
-                self.status = "Cancelled"
-                print('Transaction is cancelled')
-            elif self.status == "Processed":
-                print("This transaction has already been processed.")
+        if self.status == "Pending":
+            self.status = "Cancelled"
+            print('Transaction is cancelled')
+        elif self.status == "Processed":
+            print("This transaction has already been processed.")
 
     def update_transaction(self):
-            self.desc = input('Please update transaction description')
+        self.desc = input('Please update transaction description')
 
 
 

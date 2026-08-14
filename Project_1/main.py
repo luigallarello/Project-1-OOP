@@ -38,7 +38,7 @@ transaction_2 = Transaction(2, "deposit", 1000, 'sushi')
 transaction_3 = Transaction(3, "withdrawl", 4000, 'new car',)
 
 transaction_1.cancel_transaction()
-transaction_2.process_transaction()
+# transaction_2.process_transaction()
 
 branch_1 = Branch(1, 'Westpac', 'Prospect', 4000002034)
 branch_2 = Branch(2, 'BankSA', 'Norwood', 40205060437)
@@ -46,6 +46,9 @@ branch_3 = Branch(3, 'Commonwealth Bank', 'Adelaide', 45067082457)
 
 branch_1.open_Branch()
 branch_2.close_Branch()
+
+print(branch_1)
+print(repr(branch_1))
 
 
 
