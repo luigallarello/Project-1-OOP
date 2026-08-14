@@ -7,10 +7,6 @@ class Branch():
         self.is_open = is_open
 
     def __str__(self):
-        if self.is_open == True:
-            return 'Open'
-        else:
-            return 'Closed'
         return f'Branch number: {self.branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phoneNo}\n Opening State: {self.is_open}'
 
     def open_Branch(self):
