@@ -8,7 +8,10 @@ class Transaction():
         self.status = status
 
     def __str__(self):
-            return f'Transaction ID: {self.transaction_id}\n Transaction type: {self.transaction_type}\n Amount: {self.transaction_amt}\n Description: {self.desc}\n Current Status: {self.status}'
+        return f'Transaction ID: {self.transaction_id}\n Transaction type: {self.transaction_type}\n Amount: {self.transaction_amt}\n Description: {self.desc}\n Current Status: {self.status}'
+
+    def __repr__(self):
+        return f'Transaction(Transaction ID={self.transaction_id!r}, Type={self.transaction_type!r}, Amount={self.transaction_amt!r}, Description={self.desc!r}, Status={self.status!r})'
     
     def process_transaction(self, account):
         if self.transaction_type == "deposit":
