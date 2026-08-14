@@ -9,6 +9,9 @@ class Branch():
     def __str__(self):
         return f'Branch number: {self.branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phoneNo}\n Opening State: {self.is_open}'
 
+    def __repr__(self):
+        return f'Branch(branch number={self.branch_no!r}, name={self.branch_nameame!r}, location={self.location!r}, phone number={self.phone_no!r}, opening state={self.is_open!r})'
+    
     def open_Branch(self):
         self.is_open = True
         print(f"{self.location} {self.branch_name} branch is open.")
