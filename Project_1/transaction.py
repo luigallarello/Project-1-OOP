@@ -16,21 +16,24 @@ class Transaction():
     def get_transaction_amt(self):
         return self.__transaction_amt
 
+    def get_status(self):
+        return self.__status
+
     def set_transaction_id(self, transaction_id):
         if isinstance(transaction_id, int):
             self.__transaction_id = transaction_id
 
     def set_transaction_type(self, transaction_type):
         if isinstance(transaction_type, str):
-            return self.__transaction_type
+            self.__transaction_type = transaction_type
 
     def set_transaction_amt(self, transaction_amt):
         if isinstance(transaction_amt, (int, float)):
-            return self.__transaction_amt
+            self.__transaction_amt = transaction_amt
 
     def set_status(self, status):
         if isinstance(status, str):
-            return self.__status
+            self.__status = status
 
     def __str__(self):
         return f'Transaction ID: {self.__transaction_id}\n Transaction type: {self.__transaction_type}\n Amount: {self.__transaction_amt}\n Description: {self.desc}\n Current Status: {self.__status}'
