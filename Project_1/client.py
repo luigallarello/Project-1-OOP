@@ -8,11 +8,17 @@ class Client:
         self.__phoneNo = phoneNo if isinstance(phoneNo, int) and not isinstance(phoneNo, bool) and phoneNo >= 0 else 0
 
     def __validate_clientNo(self, clientNo):
-         if isinstance (clientNo, int) and not isinstance(clientNo, 
+        if isinstance (clientNo, int) and not isinstance(clientNo, 
         bool) and clientNo >= 0:
-              return clientNo
-         print(f'Invalid Client Number{clientNo!r} - defaulting to 0')
-         return 0
+            return clientNo
+        print(f'Invalid Client Number {clientNo!r} - defaulting to 0')
+        return 0
+
+    def __validate_email(self, email):
+            if isinstance (email, str) and email.strip() !='':
+                return email
+            print(f'Invalid email {email!r} - defaulting to unknown')
+            return 'unknown'
     
     def set_clientNo(self, clientNo):
         if isinstance(clientNo, int):
