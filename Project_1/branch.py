@@ -1,16 +1,16 @@
 class Branch():
     def __init__(self, branch_no, branch_name, location, phone_no, is_open=False):
-        self.branch_no = branch_no
+        self.__branch_no = branch_no
         self.branch_name = branch_name
         self.location = location
         self.phone_no = phone_no
         self.is_open = is_open
 
     def __str__(self):
-        return f'Branch number: {self.branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phone_no}\n Opening State: {self.is_open}'
+        return f'Branch number: {self.__branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phone_no}\n Opening State: {self.is_open}'
 
     def __repr__(self):
-        return f'Branch(branch number={self.branch_no!r}, name={self.branch_name!r}, location={self.location!r}, phone number={self.phone_no!r}, opening state={self.is_open!r})'
+        return f'Branch(branch number={self.__branch_no!r}, name={self.branch_name!r}, location={self.location!r}, phone number={self.phone_no!r}, opening state={self.is_open!r})'
     
     def open_Branch(self):
         self.is_open = True
