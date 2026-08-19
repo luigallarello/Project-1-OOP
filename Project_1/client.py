@@ -1,48 +1,65 @@
 class Client:
     def __init__(self, clientNo, firstName, lastName, email, age, phoneNo):
         self.__clientNo = self.__validate_clientNo(clientNo)
-        self.firstName = firstName
-        self.lastName = lastName
-        self.__email = email
-        self.__age = age if isinstance(age, int) and not isinstance(age, bool) and age >= 0 else 0
-        self.__phoneNo = phoneNo if isinstance(phoneNo, int) and not isinstance(phoneNo, bool) and phoneNo >= 0 else 0
+        self.firstName = self.__validate_name(firstName, 'first name')
+        self.lastName = self.__validate_name(lastName, 'last name')
+        self.__email = self.__validate_email(email)
+        self.__age = self.__validate_age(age)
+        self.__phoneNo = self.__validate_phoneNo(phoneNo)
 
     def __validate_clientNo(self, clientNo):
-        if isinstance (clientNo, int) and not isinstance(clientNo, 
-        bool) and clientNo >= 0:
+        if isinstance(clientNo, int) and not isinstance(clientNo, bool) and clientNo >= 0:
             return clientNo
         print(f'Invalid Client Number {clientNo!r} - defaulting to 0')
         return 0
 
+    def __validate_name(self, name, fieldLabel):
+        if isinstance(name, str) and name.strip() != '':
+            return name
+        print(f'Invalid {fieldLabel} {name!r} - defaulting to "Unknown"')
+        return 'Unknown'
+
     def __validate_email(self, email):
-            if isinstance (email, str) and email.strip() !='':
-                return email
-            print(f'Invalid email {email!r} - defaulting to unknown')
-            return 'unknown'
-    
+        if isinstance(email, str) and email.strip() != '':
+            return email
+        print(f'Invalid email {email!r} - defaulting to unknown')
+        return 'unknown'
+
+    def __validate_age(self, age):
+        if isinstance(age, int) and not isinstance(age, bool) and 0 <= age <= 120:
+            return age
+        print(f'Invalid age {age!r} - defaulting to 0')
+        return 0
+
+    def __validate_phoneNo(self, phoneNo):
+        if isinstance(phoneNo, int) and not isinstance(phoneNo, bool) and phoneNo >= 0:
+            return phoneNo
+        print(f'Invalid phone number {phoneNo!r} - defaulting to 0')
+        return 0
+
     def set_clientNo(self, clientNo):
-        if isinstance(clientNo, int):
+        if isinstance(clientNo, int) and not isinstance(clientNo, bool) and clientNo >= 0:
             self.__clientNo = clientNo
         else:
             print(f'Rejected: {clientNo!r} is not a valid client number')
 
     def set_email(self, email):
-            if isinstance(email, str):
-                self.__email = email
-            else:
-                print(f'Rejected: {email!r} is not a valid email')
+        if isinstance(email, str) and email.strip() != '':
+            self.__email = email
+        else:
+            print(f'Rejected: {email!r} is not a valid email')
 
     def set_age(self, age):
-            if isinstance(age, int):
-                self.__age = age
-            else:
-                print(f'Rejected: {age!r} is not a valid age')
+        if isinstance(age, int) and not isinstance(age, bool) and 0 <= age <= 120:
+            self.__age = age
+        else:
+            print(f'Rejected: {age!r} is not a valid age')
 
     def set_phoneNo(self, phoneNo):
-            if isinstance(phoneNo, int):
-                self.__phoneNo = phoneNo
-            else:
-                print(f'Rejected: {phoneNo!r} is not a valid phone number')
+        if isinstance(phoneNo, int) and not isinstance(phoneNo, bool) and phoneNo >= 0:
+            self.__phoneNo = phoneNo
+        else:
+            print(f'Rejected: {phoneNo!r} is not a valid phone number')
 
     def get_clientNo(self):
         return self.__clientNo
