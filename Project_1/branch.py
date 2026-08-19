@@ -4,7 +4,21 @@ class Branch():
         self.branch_name = branch_name
         self.location = location
         self.phone_no = phone_no
-        self.is_open = is_open
+        self.__is_open = is_open
+
+    def get_branchNo(self):
+        return self.__branch_no
+
+    def get_is_open(self):
+        return self.__is_open
+
+    def set_branch_no(self, branch_no):
+        if isinstance(branch_no, int):
+            self.__branch_no = branch_no
+
+    def set_is_open(self, is_open):
+        if isinstance(is_open, (bool, int)):
+            self.__is_open = is_open
 
     def __str__(self):
         return f'Branch number: {self.__branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phone_no}\n Opening State: {self.is_open}'

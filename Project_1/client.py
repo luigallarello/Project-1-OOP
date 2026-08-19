@@ -9,19 +9,19 @@ class Client:
 
     def set_clientNo(self, clientNo):
         if isinstance(clientNo, int):
-            return self.__clientNo
+            self.__clientNo = clientNo
 
     def set_email(self, email):
             if isinstance(email, str):
-                return self.__email
+                self.__email = email
 
     def set_age(self, age):
             if isinstance(age, int):
-                return self.__age
+                self.__age = age
 
     def set_phoneNo(self, phoneNo):
             if isinstance(phoneNo, int):
-                return self.__phoneNo
+                self.__phoneNo = phoneNo
 
     def get_clientNo(self):
         return self.__clientNo

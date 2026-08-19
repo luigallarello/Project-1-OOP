@@ -15,7 +15,7 @@ class Account:
             return f'Current Balance: {self.get_currentBalance()}\n Account Number: {self.get_accountNumber()}\n Type: {self.accountType}\n Account Name: {self.accountHolderName}'
 
     def __repr__(self):
-        return f'Client(client number={self.clientNo!r}, first name={self.firstName!r}, last name={self.lastName!r}, email={self.email!r}, age={self.age!r}, phone number={self.phoneNo!r})'
+        return f'Account(current balance={self.get_currentBalance()!r}, account number={self.get_accountNumber()!r}, type={self.accountType!r}, account holder name={self.accountHolderName!r})'
 
     def deposit(self, depositAmt):
         self.__currentBalance += depositAmt

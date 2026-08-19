@@ -22,15 +22,15 @@ class Transaction():
 
     def set_transaction_type(self, transaction_type):
         if isinstance(transaction_type, str):
-            self.__transaction_type = transaction_type
+            return self.__transaction_type
 
     def set_transaction_amt(self, transaction_amt):
         if isinstance(transaction_amt, (int, float)):
-            self.__transaction_amt = transaction_amt
+            return self.__transaction_amt
 
     def set_status(self, status):
         if isinstance(status, str):
-            self.__status = status
+            return self.__status
 
     def __str__(self):
         return f'Transaction ID: {self.__transaction_id}\n Transaction type: {self.__transaction_type}\n Amount: {self.__transaction_amt}\n Description: {self.desc}\n Current Status: {self.__status}'
