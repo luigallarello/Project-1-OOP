@@ -37,15 +37,15 @@ class Client:
     
         
     def __str__(self):
-        return f'Client Number: {self.clientNo}\n Client Name: {self.firstName}{self.lastName}\n Phone Number: {self.phoneNo}'
+        return f'Client Number: {self.get_clientNo()}\n Client Name: {self.firstName}{self.lastName}\n Phone Number: {self.get_phoneNo()}'
 
     def __repr__(self):
-        return f'Client(client number={self.clientNo!r}, first name={self.firstName!r}, last name={self.lastName!r}, email={self.email!r}, age={self.age!r}, phone number={self.phoneNo!r})'
+        return f'Client(client number={self.get_clientNo()!r}, first name={self.firstName!r}, last name={self.lastName!r}, email={self.get_email()!r}, age={self.get_age()!r}, phone number={self.get_phoneNo()!r})'
 
     def display_contact_info(self):
-        print(f'''Client Number: {self.clientNo},\n 
+        print(f'''Client Number: {self.get_clientNo()},\n
             First Name: {self.firstName},\n
             Last Name: {self.lastName},\n
-            Email: {self.email},\n
-            Age: {self.age},\n
-            Phone No: {self.phoneNo}''')
+            Email: {self.get_email()},\n
+            Age: {self.get_age()},\n
+            Phone No: {self.get_phoneNo()}''')

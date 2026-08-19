@@ -11,14 +11,18 @@ class Account:
     def get_accountNumber(self):
         return self.__accountNumber
 
-    def set_currentBalance(self, currentBalance):
-        if isinstance(currentBalance, (int, float)):
-            self.__currentBalance = currentBalance
-
     def set_accountNumber(self, accountNumber):
         if isinstance(accountNumber, int):
             self.__accountNumber = accountNumber
-    
+
+    def set_accountType(self, accountType):
+        if isinstance(accountType, str):
+            self.accountType = accountType
+
+    def set_accountHolderName(self, accountHolderName):
+        if isinstance(accountHolderName, str):
+            self.accountHolderName = accountHolderName
+
     def __str__(self):
             return f'Current Balance: {self.get_currentBalance()}\n Account Number: {self.get_accountNumber()}\n Type: {self.accountType}\n Account Name: {self.accountHolderName}'
 

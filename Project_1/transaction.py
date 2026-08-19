@@ -35,11 +35,15 @@ class Transaction():
         if isinstance(status, str):
             self.__status = status
 
+    def set_transaction_desc(self, transaction_desc):
+        if isinstance(transaction_desc, str):
+            self.transaction_desc = transaction_desc
+
     def __str__(self):
-        return f'Transaction ID: {self.__transaction_id}\n Transaction type: {self.__transaction_type}\n Amount: {self.__transaction_amt}\n Description: {self.desc}\n Current Status: {self.__status}'
+        return f'Transaction ID: {self.__transaction_id}\n Transaction type: {self.__transaction_type}\n Amount: {self.__transaction_amt}\n Description: {self.transaction_desc}\n Current Status: {self.__status}'
 
     def __repr__(self):
-        return f'Transaction(Transaction ID={self.__transaction_id!r}, Type={self.__transaction_type!r}, Amount={self.__transaction_amt!r}, Description={self.desc!r}, Status={self.__status!r})'
+        return f'Transaction(Transaction ID={self.__transaction_id!r}, Type={self.__transaction_type!r}, Amount={self.__transaction_amt!r}, Description={self.transaction_desc!r}, Status={self.__status!r})'
 
     def process_transaction(self, account):
         if self.__transaction_type == "deposit":
@@ -60,7 +64,7 @@ class Transaction():
             print("This transaction has already been processed.")
 
     def update_transaction(self):
-        self.desc = input('Please update transaction description')
+        self.set_transaction_desc(input('Please update transaction description: '))
 
 
 

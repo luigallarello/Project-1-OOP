@@ -16,33 +16,35 @@ class Branch():
         if isinstance(branch_no, int):
             self.__branch_no = branch_no
 
-    def set_is_open(self, is_open):
-        if isinstance(is_open, (bool, int)):
-            self.__is_open = is_open
+    def set_phone_no(self, phone_no):
+        if isinstance(phone_no, int):
+            self.phone_no = phone_no
+
+    def set_branch_name(self, branch_name):
+        if isinstance(branch_name, str):
+            self.branch_name = branch_name
+
+    def set_location(self, location):
+        if isinstance(location, str):
+            self.location = location
 
     def __str__(self):
-        return f'Branch number: {self.__branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phone_no}\n Opening State: {self.is_open}'
+        return f'Branch number: {self.__branch_no}\n Name: {self.branch_name}\n Phone Number: {self.phone_no}\n Opening State: {self.get_is_open()}'
 
     def __repr__(self):
-        return f'Branch(branch number={self.__branch_no!r}, name={self.branch_name!r}, location={self.location!r}, phone number={self.phone_no!r}, opening state={self.is_open!r})'
-    
+        return f'Branch(branch number={self.__branch_no!r}, name={self.branch_name!r}, location={self.location!r}, phone number={self.phone_no!r}, opening state={self.get_is_open()!r})'
+
     def open_Branch(self):
-        self.is_open = True
+        self.__is_open = True
         print(f"{self.location} {self.branch_name} branch is open.")
 
     def close_Branch(self):
-        if self.is_open == False:
+        if self.__is_open == False:
             print("Branch is already closed")
         else:
-            self.is_open == False
+            self.__is_open = False
             print(f"{self.location} {self.branch_name} branch is closed.")
 
     def update_Phone_No(self):
-        self.update_Phone_No = int(input("Please enter the new phone number for the branch."))
-        # choice = input(f'The branches new phone number is {new_Phone_num}. Is this correct y/n')
-        # if choice == 'y':
-        #     self.phone_no == new_Phone_num
-        #     print('New number confirmed')
-        # elif choice == 'n':
-        #     int(input("Please enter the new phone number for the branch."))
+        self.set_phone_no(int(input("Please enter the new phone number for the branch: ")))
 
