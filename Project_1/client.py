@@ -1,3 +1,5 @@
+from account import Account
+
 class Client:
     def __init__(self, clientNo, firstName, lastName, email, age, phoneNo):
         self.__clientNo = self.__validate_clientNo(clientNo)
@@ -6,6 +8,7 @@ class Client:
         self.__email = self.__validate_email(email)
         self.__age = self.__validate_age(age)
         self.__phoneNo = self.__validate_phoneNo(phoneNo)
+        self.__accounts = []
 
     def __validate_clientNo(self, clientNo):
         if isinstance(clientNo, int) and not isinstance(clientNo, bool) and clientNo >= 0:
@@ -87,3 +90,22 @@ class Client:
             Email: {self.get_email()},\n
             Age: {self.get_age()},\n
             Phone No: {self.get_phoneNo()}''')
+
+    def add_account(self, account):
+        if isinstance(account, Account) is True:
+            if account in self.__accounts:
+                return f'You already have an account that matches.'
+            else:
+                self.__accounts.append(account)
+        else:
+            return f'Not a valid account, please enter and Account'
+
+    def remove_account(self, account):
+        if isinstance(account, Account) is True:
+            if account in self.__accounts:
+                return f'You already have an account that matches.'
+            else:
+                self.__accounts.remove(account)
+                print(f'Account successfully removed')
+        else:
+            return f'Not a valid account, please enter and Account'
