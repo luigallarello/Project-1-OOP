@@ -103,9 +103,12 @@ class Client:
     def remove_account(self, account):
         if isinstance(account, Account) is True:
             if account in self.__accounts:
-                return f'You already have an account that matches.'
-            else:
                 self.__accounts.remove(account)
                 print(f'Account successfully removed')
+            else:
+                print(f'Account not found')
         else:
-            return f'Not a valid account, please enter and Account'
+            return f'Not a valid account, please enter an Account'
+
+    def get_account_list(self):
+        return self.__accounts.copy()
