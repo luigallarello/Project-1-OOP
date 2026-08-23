@@ -1,4 +1,6 @@
 from account import Account
+from branch import Branch
+
 
 class Client:
     def __init__(self, clientNo, firstName, lastName, email, age, phoneNo):
@@ -9,6 +11,7 @@ class Client:
         self.__age = self.__validate_age(age)
         self.__phoneNo = self.__validate_phoneNo(phoneNo)
         self.__accounts = []
+        self.__preferred_branch = None
 
     def __validate_clientNo(self, clientNo):
         if isinstance(clientNo, int) and not isinstance(clientNo, bool) and clientNo >= 0:
@@ -112,3 +115,13 @@ class Client:
 
     def get_account_list(self):
         return self.__accounts.copy()
+
+    def set_preferred_branch(self, preferred_branch):
+        if isinstance(preferred_branch, Branch) is True:
+            self.__preferred_branch = preferred_branch
+            return f'{self.__preferred_branch} is now set to your preferred branch'
+        else:
+            return f'Not a valid branch name, please enter a valid branch name'
+
+    def get_preferred_branch(self):
+        return self.__preferred_branch
