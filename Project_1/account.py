@@ -1,84 +1,110 @@
 class Account:
-    def __init__(self, currentBalance, accountNumber, accountType, accountHolderName):
-        self.__currentBalance = self.__validate_currentBalance(currentBalance)
-        self.__accountNumber = self.__validate_accountNumber(accountNumber)
-        self.accountType = self.__validate_accountType(accountType)
-        self.accountHolderName = self.__validate_accountHolderName(accountHolderName)
+    def __init__(self, current_balance, account_number, account_type,
+                 account_holder_name):
+        self.__current_balance = self.__validate_current_balance(
+            current_balance)
+        self.__account_number = self.__validate_account_number(
+            account_number)
+        self.account_type = self.__validate_account_type(account_type)
+        self.account_holder_name = self.__validate_account_holder_name(
+            account_holder_name)
 
-    def __validate_currentBalance(self, currentBalance):
-        if isinstance(currentBalance, (int, float)) and not isinstance(currentBalance, bool) and currentBalance >= 0:
-            return currentBalance
-        print(f'Invalid current balance {currentBalance!r} - defaulting to 0')
+    def __validate_current_balance(self, current_balance):
+        if (isinstance(current_balance, (int, float))
+                and not isinstance(current_balance, bool)
+                and current_balance >= 0):
+            return current_balance
+        print(f'Invalid current balance {current_balance!r} - '
+              f'defaulting to 0')
         return 0
 
-    def __validate_accountNumber(self, accountNumber):
-        if isinstance(accountNumber, int) and not isinstance(accountNumber, bool) and accountNumber >= 0:
-            return accountNumber
-        print(f'Invalid account number {accountNumber!r} - defaulting to 0')
+    def __validate_account_number(self, account_number):
+        if (isinstance(account_number, int)
+                and not isinstance(account_number, bool)
+                and account_number >= 0):
+            return account_number
+        print(f'Invalid account number {account_number!r} - '
+              f'defaulting to 0')
         return 0
 
-    def __validate_accountType(self, accountType):
-        if isinstance(accountType, str) and accountType.strip() != '':
-            return accountType
-        print(f'Invalid account type {accountType!r} - defaulting to "Unknown"')
+    def __validate_account_type(self, account_type):
+        if isinstance(account_type, str) and account_type.strip() != '':
+            return account_type
+        print(f'Invalid account type {account_type!r} - '
+              f'defaulting to "Unknown"')
         return 'Unknown'
 
-    def __validate_accountHolderName(self, accountHolderName):
-        if isinstance(accountHolderName, str) and accountHolderName.strip() != '':
-            return accountHolderName
-        print(f'Invalid account holder name {accountHolderName!r} - defaulting to "Unknown"')
+    def __validate_account_holder_name(self, account_holder_name):
+        if (isinstance(account_holder_name, str)
+                and account_holder_name.strip() != ''):
+            return account_holder_name
+        print(f'Invalid account holder name {account_holder_name!r} - '
+              f'defaulting to "Unknown"')
         return 'Unknown'
 
-    def get_currentBalance(self):
-        return self.__currentBalance
+    def get_current_balance(self):
+        return self.__current_balance
 
-    def get_accountNumber(self):
-        return self.__accountNumber
+    def get_account_number(self):
+        return self.__account_number
 
-    def set_accountNumber(self, accountNumber):
-        if isinstance(accountNumber, int) and not isinstance(accountNumber, bool) and accountNumber >= 0:
-            self.__accountNumber = accountNumber
+    def set_account_number(self, account_number):
+        if (isinstance(account_number, int)
+                and not isinstance(account_number, bool)
+                and account_number >= 0):
+            self.__account_number = account_number
         else:
-            print(f'Rejected: {accountNumber!r} is not a valid account number')
+            print(f'Rejected: {account_number!r} is not a valid '
+                  f'account number')
 
-    def set_accountType(self, accountType):
-        if isinstance(accountType, str) and accountType.strip() != '':
-            self.accountType = accountType
+    def set_account_type(self, account_type):
+        if isinstance(account_type, str) and account_type.strip() != '':
+            self.account_type = account_type
         else:
-            print(f'Rejected: {accountType!r} is not a valid account type')
+            print(f'Rejected: {account_type!r} is not a valid account type')
 
-    def set_accountHolderName(self, accountHolderName):
-        if isinstance(accountHolderName, str) and accountHolderName.strip() != '':
-            self.accountHolderName = accountHolderName
+    def set_account_holder_name(self, account_holder_name):
+        if (isinstance(account_holder_name, str)
+                and account_holder_name.strip() != ''):
+            self.account_holder_name = account_holder_name
         else:
-            print(f'Rejected: {accountHolderName!r} is not a valid account holder name')
+            print(f'Rejected: {account_holder_name!r} is not a valid '
+                  f'account holder name')
 
     def __str__(self):
-            return f'Current Balance: {self.get_currentBalance()}\n Account Number: {self.get_accountNumber()}\n Type: {self.accountType}\n Account Name: {self.accountHolderName}'
+        return (f'Current Balance: {self.get_current_balance()}\n'
+                f' Account Number: {self.get_account_number()}\n'
+                f' Type: {self.account_type}\n'
+                f' Account Name: {self.account_holder_name}')
 
     def __repr__(self):
-        return f'Account(current balance={self.get_currentBalance()!r}, account number={self.get_accountNumber()!r}, type={self.accountType!r}, account holder name={self.accountHolderName!r})'
+        return (f'Account(current balance={self.get_current_balance()!r}, '
+                f'account number={self.get_account_number()!r}, '
+                f'type={self.account_type!r}, '
+                f'account holder name={self.account_holder_name!r})')
 
     def __validate_amount(self, amount, label):
-        if isinstance(amount, (int, float)) and not isinstance(amount, bool) and amount > 0:
+        if (isinstance(amount, (int, float))
+                and not isinstance(amount, bool) and amount > 0):
             return True
         print(f'Rejected: {amount!r} is not a valid {label} amount')
         return False
 
-    def deposit(self, depositAmt):
-        if not self.__validate_amount(depositAmt, 'deposit'):
+    def deposit(self, deposit_amt):
+        if not self.__validate_amount(deposit_amt, 'deposit'):
             return
-        self.__currentBalance += depositAmt
-        print(f'Your new balance is ${self.__currentBalance}.')
+        self.__current_balance += deposit_amt
+        print(f'Your new balance is ${self.__current_balance}.')
 
-    def withdrawl(self, withdrawlAmt):
-        if not self.__validate_amount(withdrawlAmt, 'withdrawal'):
+    def withdrawal(self, withdrawal_amt):
+        if not self.__validate_amount(withdrawal_amt, 'withdrawal'):
             return
-        if withdrawlAmt > self.__currentBalance:
-            print(f'Not Enough Funds, you only have ${self.__currentBalance}.')
+        if withdrawal_amt > self.__current_balance:
+            print(f'Not Enough Funds, you only have '
+                  f'${self.__current_balance}.')
         else:
-            self.__currentBalance -= withdrawlAmt
-            print(f'Your new balance is ${self.__currentBalance}.')
+            self.__current_balance -= withdrawal_amt
+            print(f'Your new balance is ${self.__current_balance}.')
 
-    def displayCurrentBalance(self):
-        print(f'Your current Balance is ${self.__currentBalance}.')
+    def display_current_balance(self):
+        print(f'Your current Balance is ${self.__current_balance}.')

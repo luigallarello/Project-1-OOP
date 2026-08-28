@@ -60,6 +60,8 @@ branch_3.set_phone_no(812345678)
 print(branch_1)
 print(repr(branch_1))
 
+client_1.set_preferred_branch(branch_1)
+client_1.add_account(account_1)
 
 
 
