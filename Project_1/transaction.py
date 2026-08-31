@@ -139,6 +139,8 @@ class Transaction:
             print('Transaction is cancelled')
         elif self.__status == 'Processed':
             print('This transaction has already been processed.')
+        elif self.__status == 'Cancelled':
+            print('This transaction has already been cancelled.')
 
     def update_transaction(self):
         self.set_transaction_desc(

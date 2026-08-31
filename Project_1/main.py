@@ -67,6 +67,7 @@ transaction_2 = Transaction(2, 'deposit', 1000, 'sushi')
 
 transaction_1.cancel_transaction()
 print(f'Transaction 1 status: {transaction_1.get_status()}')
+transaction_1.cancel_transaction()  # cancelling twice is now handled
 
 transaction_2.process_transaction(account_2)
 print(f'Transaction 2 status: {transaction_2.get_status()}')
@@ -96,7 +97,6 @@ print(f'Account 1 still exists on its own: {account_1}')
 # put account_1 back so the coverage section below still has every
 # client holding at least one account.
 client_1.add_account(account_1)
-
 
 
 # 4. Association (Client -- Branch)
@@ -187,7 +187,3 @@ print(repr(transaction_3))
 print('-- process_transaction() rejects a non-Account object --')
 transaction_3.process_transaction('not an account')
 print(f'Transaction 3 status unchanged: {transaction_3.get_status()}')
-
-
-
-
