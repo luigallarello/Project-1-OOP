@@ -1,4 +1,12 @@
 class Branch:
+    """A physical bank branch and whether it is currently open.
+
+    Owns no other objects. Responsible for its own identity/contact
+    details and for its open/closed state, which only changes
+    through open_branch()/close_branch() rather than a direct
+    setter.
+    """
+
     def __init__(self, branch_no, branch_name, location, phone_no,
                  is_open=False):
         self.__branch_no = self.__validate_branch_no(branch_no)

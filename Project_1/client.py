@@ -3,6 +3,15 @@ from branch import Branch
 
 
 class Client:
+    """A bank client and their relationships to other objects.
+
+    Owns zero or more Account objects (aggregation) and may select
+    one Branch as a preferred branch (association). Responsible for
+    the client's own contact details plus the rules for adding,
+    removing, and reassigning those relationships - not for the
+    Account or Branch objects' own internal behaviour.
+    """
+
     def __init__(self, client_no, first_name, last_name, email, age,
                  phone_no):
         self.__client_no = self.__validate_client_no(client_no)

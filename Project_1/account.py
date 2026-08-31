@@ -1,4 +1,12 @@
 class Account:
+    """A single bank account and its balance.
+
+    Owns no other objects. Responsible for validating and mutating
+    its own balance through deposit() and withdrawal(), and for
+    reporting its own state - it has no knowledge of which Client
+    (if any) currently holds it.
+    """
+
     def __init__(self, current_balance, account_number, account_type,
                  account_holder_name):
         self.__current_balance = self.__validate_current_balance(

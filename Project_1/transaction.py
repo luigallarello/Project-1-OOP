@@ -1,4 +1,16 @@
+from account import Account
+
+
 class Transaction:
+    """A single deposit or withdrawal request and its status.
+
+    A Transaction does not keep a permanent reference to an Account -
+    process_transaction() receives one temporarily to apply the
+    transaction, then lets it go. Its responsibility is the
+    transaction's own data and its Pending/Processed/Cancelled
+    status.
+    """
+
     def __init__(self, transaction_id, transaction_type, transaction_amt,
                  transaction_desc, status='Pending'):
         self.__transaction_id = self.__validate_transaction_id(
@@ -89,13 +101,6 @@ class Transaction:
             print(f'Rejected: {transaction_amt!r} is not a valid '
                   f'transaction amount')
 
-    def set_status(self, status):
-        if (isinstance(status, str)
-                and status in ('Pending', 'Processed', 'Cancelled')):
-            self.__status = status
-        else:
-            print(f'Rejected: {status!r} is not a valid status')
-
     def set_transaction_desc(self, transaction_desc):
         if isinstance(transaction_desc, str):
             self.transaction_desc = transaction_desc
@@ -118,13 +123,12 @@ class Transaction:
                 f'Status={self.__status!r})')
 
     def process_transaction(self, account):
+        if not isinstance(account, Account):
+            print(f'Rejected: {account!r} is not a valid Account')
+            return
         if self.__transaction_type == 'deposit':
-            if self.__transaction_amt < 0:
-                self.__transaction_amt = int(
-                    input('Please enter a valid number:'))
-            else:
-                account.deposit(self.__transaction_amt)
-                self.__status = 'Processed'
+            account.deposit(self.__transaction_amt)
+            self.__status = 'Processed'
         elif self.__transaction_type == 'withdrawal':
             account.withdrawal(self.__transaction_amt)
             self.__status = 'Processed'
