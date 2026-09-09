@@ -7,13 +7,11 @@ class Account:
     (if any) currently holds it.
     """
 
-    def __init__(self, current_balance, account_number, account_type,
-                 account_holder_name):
-        self.__current_balance = self.__validate_current_balance(
+    def __init__(self, current_balance, account_number,account_holder_name):
+        self._current_balance = self.__validate_current_balance(
             current_balance)
-        self.__account_number = self.__validate_account_number(
+        self._account_number = self.__validate_account_number(
             account_number)
-        self.account_type = self.__validate_account_type(account_type)
         self.account_holder_name = self.__validate_account_holder_name(
             account_holder_name)
 
@@ -34,13 +32,6 @@ class Account:
         print(f'Invalid account number {account_number!r} - '
               f'defaulting to 0')
         return 0
-
-    def __validate_account_type(self, account_type):
-        if isinstance(account_type, str) and account_type.strip() != '':
-            return account_type
-        print(f'Invalid account type {account_type!r} - '
-              f'defaulting to "Unknown"')
-        return 'Unknown'
 
     def __validate_account_holder_name(self, account_holder_name):
         if (isinstance(account_holder_name, str)
@@ -65,11 +56,6 @@ class Account:
             print(f'Rejected: {account_number!r} is not a valid '
                   f'account number')
 
-    def set_account_type(self, account_type):
-        if isinstance(account_type, str) and account_type.strip() != '':
-            self.account_type = account_type
-        else:
-            print(f'Rejected: {account_type!r} is not a valid account type')
 
     def set_account_holder_name(self, account_holder_name):
         if (isinstance(account_holder_name, str)
@@ -104,7 +90,7 @@ class Account:
         self.__current_balance += deposit_amt
         print(f'Your new balance is ${self.__current_balance}.')
 
-    def withdrawal(self, withdrawal_amt):
+    def _withdrawal(self, withdrawal_amt):
         if not self.__validate_amount(withdrawal_amt, 'withdrawal'):
             return
         if withdrawal_amt > self.__current_balance:
@@ -117,5 +103,11 @@ class Account:
     def display_current_balance(self):
         print(f'Your current Balance is ${self.__current_balance}.')
 
-    class SavingsAccount(Account):
-        def __init__()
+    
+            
+
+           
+
+
+
+        
