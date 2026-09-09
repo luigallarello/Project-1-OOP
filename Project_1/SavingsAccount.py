@@ -22,6 +22,6 @@ class SavingsAccount(Account):
 
         def _withdrawal(self, withdrawal_amt):
             if self.current_balance > self.__min_balance:
-                withdrawal_process = super()._withdrawal()
+                super()._withdrawal()
             else:
                 print('Not enough funds available to withdraw')
