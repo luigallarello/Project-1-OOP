@@ -140,3 +140,9 @@ project. The bigger takeaway was that a diagram and a test suite can
 both go stale in different ways at the same time - the diagram
 lagged behind renames, and main.py's coverage lagged behind new
 methods being added - so both need to be checked, not just one.
+
+Workshop 5-1 - Also code review on 9/09:
+I recieved feedback on my new account refactor, there would be no account holder
+name in the account parent class as savings and everyday become the new objects.
+My method rewriting was all ok. I haven't yet added the composition between account and transaction
+quite yet. I need to make it so that account creates transactions.
