@@ -1,11 +1,11 @@
 from account import Account
 
 class SavingsAccount(Account):
-        def __init__(self, current_balance, account_number, account_holder_name, interest_rate, min_balance=0):
-            super().__init__(current_balance, account_number)
+        MINIMUM_BALANCE = 100
+
+        def __init__(self, current_balance, account_number, account_holder_name, interest_rate):
+            super().__init__(current_balance, account_number, account_holder_name)
             self.set_interest_rate(interest_rate)
-            self.__min_balance = min_balance
-            
 
         def get_account_type(self):
             return 'Savings'
@@ -21,8 +21,9 @@ class SavingsAccount(Account):
                 print('Not a valid interest rate')
                 return False
 
-        def _withdrawal(self, withdrawal_amt):
-            if self.current_balance > self.__min_balance:
-                super()._withdrawal(withdrawal_amt)
+        def withdrawal(self, withdrawal_amt):
+            if self.get_current_balance() - withdrawal_amt >= self.MINIMUM_BALANCE:
+                super().withdrawal(withdrawal_amt)
             else:
-                print('Not enough funds available to withdraw')
+                print(f'Rejected: withdrawal would drop balance below the '
+                      f'minimum balance of ${self.MINIMUM_BALANCE}.')

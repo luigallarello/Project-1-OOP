@@ -1,3 +1,6 @@
+from transaction import Transaction
+
+
 class Account:
     """A single bank account and its balance.
 
@@ -8,12 +11,17 @@ class Account:
     """
 
     def __init__(self, current_balance, account_number,account_holder_name):
-        self._current_balance = self.__validate_current_balance(
+        self.__current_balance = self.__validate_current_balance(
             current_balance)
-        self._account_number = self.__validate_account_number(
+        self.__account_number = self.__validate_account_number(
             account_number)
         self.account_holder_name = self.__validate_account_holder_name(
             account_holder_name)
+        self.__transactions = []
+        self.__next_transaction_id = 1
+
+    def get_transactions(self):
+        return list(self.__transactions)
 
     def __validate_current_balance(self, current_balance):
         if (isinstance(current_balance, (int, float))
@@ -68,13 +76,13 @@ class Account:
     def __str__(self):
         return (f'Current Balance: {self.get_current_balance()}\n'
                 f' Account Number: {self.get_account_number()}\n'
-                f' Type: {self.account_type}\n'
+                f' Type: {self.get_account_type()}\n'
                 f' Account Name: {self.account_holder_name}')
 
     def __repr__(self):
         return (f'Account(current balance={self.get_current_balance()!r}, '
                 f'account number={self.get_account_number()!r}, '
-                f'type={self.account_type!r}, '
+                f'type={self.get_account_type()!r}, '
                 f'account holder name={self.account_holder_name!r})')
 
     def __validate_amount(self, amount, label):
@@ -84,13 +92,20 @@ class Account:
         print(f'Rejected: {amount!r} is not a valid {label} amount')
         return False
 
+    def __record_transaction(self, transaction_type, amount, desc):
+        txn = Transaction(self.__next_transaction_id, transaction_type, amount, desc,
+                          status='Processed')
+        self.__transactions.append(txn)
+        self.__next_transaction_id += 1
+        
     def deposit(self, deposit_amt):
         if not self.__validate_amount(deposit_amt, 'deposit'):
             return
         self.__current_balance += deposit_amt
+        self.__record_transaction('deposit', deposit_amt, 'Deposit')
         print(f'Your new balance is ${self.__current_balance}.')
 
-    def _withdrawal(self, withdrawal_amt):
+    def withdrawal(self, withdrawal_amt):
         if not self.__validate_amount(withdrawal_amt, 'withdrawal'):
             return
         if withdrawal_amt > self.__current_balance:
@@ -98,12 +113,13 @@ class Account:
                   f'${self.__current_balance}.')
         else:
             self.__current_balance -= withdrawal_amt
+            self.__record_transaction('withdrawal', withdrawal_amt, 'Withdrawal')
             print(f'Your new balance is ${self.__current_balance}.')
 
     def display_current_balance(self):
         print(f'Your current Balance is ${self.__current_balance}.')
 
-    def create_transaction
+    
 
     
             
