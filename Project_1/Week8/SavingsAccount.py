@@ -22,6 +22,8 @@ class SavingsAccount(Account):
                 return False
 
         def withdrawal(self, withdrawal_amt):
+            if not self._validate_amount(withdrawal_amt, 'withdrawal'):
+                return
             if self.get_current_balance() - withdrawal_amt >= self.MINIMUM_BALANCE:
                 super().withdrawal(withdrawal_amt)
             else:

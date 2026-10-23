@@ -10,6 +10,8 @@ class EverydayAccount(Account):
         return 'Everyday'
 
     def withdrawal(self, withdrawal_amt):
+        if not self._validate_amount(withdrawal_amt, 'withdrawal'):
+            return
         if withdrawal_amt > self.MAX_WITHDRAWAL:
             print(f'Rejected: withdrawal exceeds the maximum of '
                   f'${self.MAX_WITHDRAWAL} per transaction.')

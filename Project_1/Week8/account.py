@@ -32,8 +32,8 @@ class Account(ABC):
         """Return the account type name, e.g. 'Savings'."""
 
     def get_transactions(self):
-        """Full history, oldest first, as an immutable tuple."""
-        return tuple(self.__transactions)
+        """Full history, oldest first, as a copy of the list."""
+        return list(self.__transactions)
 
     def get_transaction_count(self, transaction_type=None):
         """Number of transactions, optionally of one type only."""
@@ -46,18 +46,18 @@ class Account(ABC):
         if transaction_type not in ('deposit', 'withdrawal'):
             print(f'Rejected: {transaction_type!r} is not a valid '
                   f'transaction type')
-            return ()
-        return tuple(txn for txn in self.__transactions
-                     if txn.get_transaction_type() == transaction_type)
+            return []
+        return [txn for txn in self.__transactions
+                if txn.get_transaction_type() == transaction_type]
 
     def get_transactions_above(self, amount):
         """History entries larger than amount, in order."""
         if (not isinstance(amount, (int, float))
                 or isinstance(amount, bool)):
             print(f'Rejected: {amount!r} is not a valid amount')
-            return ()
-        return tuple(txn for txn in self.__transactions
-                     if txn.get_transaction_amt() > amount)
+            return []
+        return [txn for txn in self.__transactions
+                if txn.get_transaction_amt() > amount]
 
     def __validate_current_balance(self, current_balance):
         if (isinstance(current_balance, (int, float))
@@ -121,7 +121,9 @@ class Account(ABC):
                 f'type={self.get_account_type()!r}, '
                 f'account holder name={self.account_holder_name!r})')
 
-    def __validate_amount(self, amount, label):
+    def _validate_amount(self, amount, label):
+        # Single underscore so subclasses can check an amount before
+        # applying their own withdrawal rule.
         if (isinstance(amount, (int, float))
                 and not isinstance(amount, bool) and amount > 0):
             return True
@@ -135,7 +137,7 @@ class Account(ABC):
         self.__next_transaction_id += 1
         
     def deposit(self, deposit_amt):
-        if not self.__validate_amount(deposit_amt, 'deposit'):
+        if not self._validate_amount(deposit_amt, 'deposit'):
             return
         self.__current_balance += deposit_amt
         self.__record_transaction('deposit', deposit_amt, 'Deposit')
@@ -148,7 +150,7 @@ class Account(ABC):
         Subclasses apply their rule, then call super().withdrawal() to
         reuse the shared validation and balance update below.
         """
-        if not self.__validate_amount(withdrawal_amt, 'withdrawal'):
+        if not self._validate_amount(withdrawal_amt, 'withdrawal'):
             return
         if withdrawal_amt > self.__current_balance:
             print(f'Not Enough Funds, you only have '

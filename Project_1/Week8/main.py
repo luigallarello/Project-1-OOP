@@ -96,10 +96,8 @@ print('\nControlled access to the accounts dict')
 client_5.add_account(EverydayAccount(10, 20, 'Mia'))
 client_5.add_account('not an account')
 print(f'Account numbers held: {list(client_5.get_accounts())}')
-try:
-    client_5.get_accounts()[99] = 'tampering'
-except TypeError as error:
-    print(f'Read-only view blocks changes: {error}')
+print(f'get_accounts() hands out a read-only view, not the real dict: '
+      f'{type(client_5.get_accounts()).__name__}')
 client_5.get_account(99)
 
 # Get an account through the client, then make several transactions
@@ -110,6 +108,7 @@ account.deposit(200)
 account.deposit(50)
 account.withdrawal(300)
 account.withdrawal(5000)
+account.withdrawal('abc')
 account.withdrawal(120)
 account.deposit(900)
 account.withdrawal(1000)

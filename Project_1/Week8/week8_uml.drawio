@@ -280,7 +280,7 @@
         <mxCell id="gen2" edge="1" parent="1" source="everyday" target="n47" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.35;entryDx=0;entryDy=0;" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="note1" parent="1" vertex="1" value="&lt;b&gt;Week 8 changes&lt;/b&gt;&lt;br&gt;• Client stores its accounts in a dict {account_number: Account}; Client 1 — 0..* Account.&lt;br&gt;• add_account / get_account / remove_account work by account number; get_accounts() returns a read-only view.&lt;br&gt;• Account stores transactions in a list, oldest first, exposed only as an immutable tuple.&lt;br&gt;• History operations: get_transaction_count(), get_transactions_by_type(), get_transactions_above().&lt;br&gt;• Kept from Week 7: Account is abstract; Savings / Everyday keep their own withdrawal rules." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacing=8;strokeColor=#888888;dashed=1;fillColor=none;rounded=0;">
+        <mxCell id="note1" parent="1" vertex="1" value="&lt;b&gt;Week 8 changes&lt;/b&gt;&lt;br&gt;• Client stores its accounts in a dict {account_number: Account}; Client 1 — 0..* Account.&lt;br&gt;• add_account / get_account / remove_account work by account number; get_accounts() returns a read-only view.&lt;br&gt;• Account stores transactions in a list, oldest first, exposed only as a copy of the list.&lt;br&gt;• History operations: get_transaction_count(), get_transactions_by_type(), get_transactions_above().&lt;br&gt;• Kept from Week 7: Account is abstract; Savings / Everyday keep their own withdrawal rules." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacing=8;strokeColor=#888888;dashed=1;fillColor=none;rounded=0;">
           <mxGeometry x="1520" y="420" width="340" height="190" as="geometry" />
         </mxCell>
         <mxCell id="n42b" parent="n21" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_accounts(): Mapping&amp;lt;int, Account&amp;gt; {read-only}" vertex="1">
@@ -325,16 +325,16 @@
         <mxCell id="n60" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ display_current_balance()" vertex="1">
           <mxGeometry y="346" width="340" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="n63a" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions(): Tuple&amp;lt;Transaction&amp;gt;" vertex="1">
+        <mxCell id="n63a" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions(): List&amp;lt;Transaction&amp;gt;" vertex="1">
           <mxGeometry y="372" width="340" height="26" as="geometry" />
         </mxCell>
         <mxCell id="n63b" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transaction_count(type: str = None): int" vertex="1">
           <mxGeometry y="398" width="340" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="n63c" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions_by_type(type: str): Tuple&amp;lt;Transaction&amp;gt;" vertex="1">
+        <mxCell id="n63c" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions_by_type(type: str): List&amp;lt;Transaction&amp;gt;" vertex="1">
           <mxGeometry y="424" width="340" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="n63d" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions_above(amount: float): Tuple&amp;lt;Transaction&amp;gt;" vertex="1">
+        <mxCell id="n63d" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ get_transactions_above(amount: float): List&amp;lt;Transaction&amp;gt;" vertex="1">
           <mxGeometry y="450" width="340" height="26" as="geometry" />
         </mxCell>
         <mxCell id="n61" parent="n47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" value="+ __str__()" vertex="1">
