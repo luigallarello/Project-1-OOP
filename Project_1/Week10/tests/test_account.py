@@ -3,6 +3,7 @@ import pytest
 
 from account import Account
 from EverydayAccount import EverydayAccount
+from finance_exceptions import InsufficientFundsError, InvalidAmountError
 from SavingsAccount import SavingsAccount
 
 
@@ -54,14 +55,16 @@ def test_deposit_accepts_float(everyday_account):
 
 def test_invalid_deposit_changes_nothing(everyday_account):
     for bad_amount in (0, -50, 'abc', None, True):
-        everyday_account.deposit(bad_amount)
+        with pytest.raises(InvalidAmountError):
+            everyday_account.deposit(bad_amount)
     assert everyday_account.get_current_balance() == 1500
     assert everyday_account.get_transactions() == []
 
 
 def test_withdrawal_exceeding_balance_is_rejected():
     account = EverydayAccount(500, 1, 'Priya')
-    account.withdrawal(600)
+    with pytest.raises(InsufficientFundsError):
+        account.withdrawal(600)
     assert account.get_current_balance() == 500
     assert account.get_transactions() == []
 
@@ -74,7 +77,8 @@ def test_withdrawal_of_entire_balance_is_allowed():
 
 def test_invalid_withdrawal_changes_nothing(everyday_account):
     for bad_amount in (0, -50, 'abc', None, True):
-        everyday_account.withdrawal(bad_amount)
+        with pytest.raises(InvalidAmountError):
+            everyday_account.withdrawal(bad_amount)
     assert everyday_account.get_current_balance() == 1500
     assert everyday_account.get_transactions() == []
 
@@ -132,7 +136,8 @@ def test_base_withdrawal_validates_amount_for_subclasses_that_skip_it():
             super().withdrawal(withdrawal_amt)
 
     account = PassThroughAccount(100, 1, 'Priya')
-    account.withdrawal(-5)
+    with pytest.raises(InvalidAmountError):
+        account.withdrawal(-5)
     assert account.get_current_balance() == 100
     account.withdrawal(40)
     assert account.get_current_balance() == 60

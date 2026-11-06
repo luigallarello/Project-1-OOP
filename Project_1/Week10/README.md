@@ -146,3 +146,150 @@ I recieved feedback on my new account refactor, there would be no account holder
 name in the account parent class as savings and everyday become the new objects.
 My method rewriting was all ok. I haven't yet added the composition between account and transaction
 quite yet. I need to make it so that account creates transactions.
+
+Week 10 - Custom exceptions and final review
+
+Task 1 - Finance exceptions identified
+
+Before this week every broken rule was handled by printing "Rejected: ..."
+and returning, so the caller could not tell whether an operation had worked.
+Each situation below is a rule that already existed in the project; the table
+records what triggers it and what the exception has to tell the caller.
+
+| Situation                                   | Raised by                                   | Information carried                          |
+|---------------------------------------------|---------------------------------------------|----------------------------------------------|
+| Deposit/withdrawal amount is not a number > 0 | Account.deposit / withdrawal (shared check) | account number, amount, operation            |
+| Withdrawal larger than the balance          | Account.withdrawal                          | account number, balance, amount              |
+| Savings Account would fall below $100       | SavingsAccount.withdrawal                   | account number, balance, amount, minimum     |
+| Everyday Account withdrawal above $1000     | EverydayAccount.withdrawal                  | account number, balance, amount, limit       |
+| Account number not held by the Client       | Client.get_account                          | client number, account number                |
+
+Considered and left as they were: constructor/setter validation (invalid
+values still fall back to a default, as the earlier workshops required), a
+non-Account passed to add_account() (an input-type mistake, still returns
+False like the other setters), and a duplicate account number in add_account()
+(still returns False, documented in the method).
+
+Task 2 - Custom exceptions (finance_exceptions.py)
+
+    FinanceError(Exception)
+    +-- InvalidAmountError
+    +-- AccountNotFoundError
+    +-- WithdrawalError
+        +-- InsufficientFundsError
+        +-- MinimumBalanceError
+        +-- WithdrawalLimitError
+
+FinanceError lets a caller catch any Finance rule violation at once.
+WithdrawalError groups the three ways a withdrawal can fail, because they
+all describe the same account, balance and amount. Each exception keeps its
+values as attributes as well as in the message, e.g.
+
+    Account 20: withdrawing $2150 from a balance of $2200 would leave $50,
+    below the minimum balance of $100
+
+Task 3 - Raising and handling
+
+Raising: the methods that already enforced each rule now raise instead of
+printing. Every check happens before the balance or transaction history is
+touched, so a failed operation changes nothing (and does not use up a
+transaction id).
+
+Handling: Account/SavingsAccount/EverydayAccount only raise. The classes that
+need to carry on afterwards catch FinanceError themselves, so main.py has no
+try / except:
+
+- Transaction.process_transaction(account): reports the failure, leaves the
+  status Pending and returns False. Before this it marked a refused
+  withdrawal as Processed, which was a bug: the status said Processed while
+  the account had not changed.
+- Client.process_transaction(account_number, transaction): new method that
+  finds the account and processes the transaction, handling a missing
+  account.
+- Client.remove_account(number): catches AccountNotFoundError from
+  get_account(), reports it and returns None as before.
+
+Behaviour changes to be aware of: get_account() now raises
+AccountNotFoundError instead of returning None, and deposit()/withdrawal()
+raise instead of printing. The tests were updated to match.
+
+Task 4 - Tests
+
+New tests/test_exceptions.py covers the hierarchy, message contents, the
+attributes on each exception, and that a failed operation leaves balances,
+transaction history and the Client's account collection unchanged. The
+existing Account, Savings, Everyday, Client, Transaction and interaction tests
+now use pytest.raises() where the exception propagates. 150 tests pass.
+
+    python3 -m coverage run -m pytest
+    python3 -m coverage report
+
+Coverage is 100% across all Finance modules (main.py and tests are omitted
+by .coveragerc), including every raise and except path.
+
+Task 5 - Demonstration (main.py)
+
+The old commented-out workshop blocks were removed (Week9 and earlier folders
+keep them). The demo now runs one Client with a SavingsAccount and an
+EverydayAccount: successful deposits/withdrawals directly and through
+Transactions, then one failure for each exception, a check that balances and
+histories are unchanged, a retry that succeeds to show the program carries
+on, the same withdrawal applied to both account types, history queries, and
+removing an account twice.
+
+UML (changes to make to the diagram)
+
+The draw.io diagram and PNGs in this folder are still the Week 8 versions and
+have not been updated; the changes needed are below.
+
+    classDiagram
+        Exception <|-- FinanceError
+        FinanceError <|-- InvalidAmountError
+        FinanceError <|-- AccountNotFoundError
+        FinanceError <|-- WithdrawalError
+        WithdrawalError <|-- InsufficientFundsError
+        WithdrawalError <|-- MinimumBalanceError
+        WithdrawalError <|-- WithdrawalLimitError
+        class Client {
+            +get_account(account_number) Account  «raises AccountNotFoundError»
+            +remove_account(account_number) Account
+            +process_transaction(account_number, transaction) bool
+        }
+        class Transaction {
+            +process_transaction(account) bool
+        }
+        class Account {
+            +deposit(amount)  «raises InvalidAmountError»
+            +withdrawal(amount)  «raises InvalidAmountError, InsufficientFundsError»
+        }
+        class SavingsAccount {
+            +withdrawal(amount)  «raises MinimumBalanceError»
+        }
+        class EverydayAccount {
+            +withdrawal(amount)  «raises WithdrawalLimitError»
+        }
+        Client ..> AccountNotFoundError : raises/handles
+        Client ..> Transaction : uses
+        Transaction ..> FinanceError : handles
+        Account ..> InvalidAmountError : raises
+        Account ..> InsufficientFundsError : raises
+        SavingsAccount ..> MinimumBalanceError : raises
+        EverydayAccount ..> WithdrawalLimitError : raises
+
+Task 6 - Final review
+
+Checked against the code (the rubric itself was not available to check
+against, so confirm these against it):
+- Encapsulation: private attributes with validated getters/setters on every
+  class; Client returns a read-only view of its accounts.
+- Inheritance and abstraction: abstract Account with SavingsAccount and
+  EverydayAccount.
+- Polymorphism: the same withdrawal() call applies each account's own rule.
+- Aggregation/association/dependency: Client owns Accounts and has a
+  preferred Branch; Transaction depends on Account; Account records
+  Transactions.
+- Exceptions: hierarchy, raise-before-change, handling inside Finance classes.
+- Tests/coverage: 150 passing, 100% coverage.
+- Cleanup: commented-out development code removed from main.py, no unused
+  imports.
+- Still to do: update week8_uml.drawio and re-export the UML PNG (above).

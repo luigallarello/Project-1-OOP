@@ -87,14 +87,45 @@ def test_process_withdrawal_updates_account_and_status(pending_withdrawal,
     assert pending_withdrawal.get_status() == 'Processed'
 
 
-def test_process_withdrawal_obeys_account_rules(savings_account):
+def test_process_returns_true_when_applied(pending_deposit,
+                                           everyday_account):
+    assert pending_deposit.process_transaction(everyday_account) is True
+
+
+def test_process_withdrawal_obeys_account_rules(savings_account, capsys):
     txn = Transaction(1, 'withdrawal', 950, 'Too much')
-    txn.process_transaction(savings_account)
+    assert txn.process_transaction(savings_account) is False
     assert savings_account.get_current_balance() == 1000
+    assert 'minimum balance of $100' in capsys.readouterr().out
+
+
+def test_failed_processing_leaves_status_and_account_unchanged(
+        everyday_account):
+    txn = Transaction(1, 'withdrawal', 5000, 'Too much')
+    assert txn.process_transaction(everyday_account) is False
+    assert txn.get_status() == 'Pending'
+    assert everyday_account.get_current_balance() == 1500
+    assert everyday_account.get_transactions() == []
+
+
+def test_failed_processing_reports_the_account_and_reason(everyday_account,
+                                                          capsys):
+    Transaction(4, 'withdrawal', 5000, 'Too much').process_transaction(
+        everyday_account)
+    out = capsys.readouterr().out
+    assert 'Transaction 4 failed' in out
+    assert 'Account 11' in out
+
+
+def test_zero_amount_transaction_fails_without_changes(everyday_account):
+    txn = Transaction(1, 'deposit', 0, 'Nothing')
+    assert txn.process_transaction(everyday_account) is False
+    assert txn.get_status() == 'Pending'
+    assert everyday_account.get_current_balance() == 1500
 
 
 def test_process_with_non_account_is_rejected(pending_deposit):
-    pending_deposit.process_transaction('not an account')
+    assert pending_deposit.process_transaction('not an account') is False
     assert pending_deposit.get_status() == 'Pending'
 
 

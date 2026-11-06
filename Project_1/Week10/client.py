@@ -2,6 +2,8 @@ from types import MappingProxyType
 
 from account import Account
 from branch import Branch
+from finance_exceptions import AccountNotFoundError
+from transaction import Transaction
 
 
 class Client:
@@ -137,20 +139,47 @@ class Client:
         return True
 
     def get_account(self, account_number):
-        """Return the Account with this number, or None if not held."""
+        """Return the Account with this number.
+
+        Raises AccountNotFoundError if this client does not hold it.
+        """
         account = self.__accounts.get(account_number)
         if account is None:
-            print(f'Account {account_number!r} not found')
+            raise AccountNotFoundError(self.__client_no, account_number)
         return account
 
     def remove_account(self, account_number):
-        """Remove and return the Account with this number, or None."""
-        account = self.__accounts.pop(account_number, None)
-        if account is None:
-            print(f'Account {account_number!r} not found')
-        else:
-            print(f'Account {account_number} successfully removed')
+        """Remove and return the Account with this number.
+
+        If the client does not hold it, the problem is reported, nothing
+        changes and None is returned.
+        """
+        try:
+            account = self.get_account(account_number)
+        except AccountNotFoundError as error:
+            print(error)
+            return None
+        del self.__accounts[account_number]
+        print(f'Account {account_number} successfully removed')
         return account
+
+    def process_transaction(self, account_number, transaction):
+        """Apply a Transaction to one of this client's accounts.
+
+        Returns True if it was processed. If the account is not held, or
+        the account refuses the transaction, the problem is reported,
+        nothing changes and False is returned.
+        """
+        if not isinstance(transaction, Transaction):
+            print(f'Rejected: {transaction!r} is not a Transaction')
+            return False
+        try:
+            account = self.get_account(account_number)
+        except AccountNotFoundError as error:
+            print(f'Transaction {transaction.get_transaction_id()} '
+                  f'failed: {error}')
+            return False
+        return transaction.process_transaction(account)
 
     def get_accounts(self):
         """Read-only view of {account number: Account}.

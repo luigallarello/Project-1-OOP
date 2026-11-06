@@ -1,3 +1,6 @@
+from finance_exceptions import FinanceError
+
+
 class Transaction:
     """A single deposit or withdrawal request and its status.
 
@@ -120,16 +123,27 @@ class Transaction:
                 f'Status={self.__status!r})')
 
     def process_transaction(self, account):
+        """Apply this transaction to an Account.
+
+        Returns True when it was applied and the status becomes
+        'Processed'. If the Account refuses it (a FinanceError such as
+        insufficient funds), the error is reported, the Account is left
+        untouched, the status stays as it was and False is returned.
+        """
         from account import Account
         if not isinstance(account, Account):
             print(f'Rejected: {account!r} is not a valid Account')
-            return
-        if self.__transaction_type == 'deposit':
-            account.deposit(self.__transaction_amt)
-            self.__status = 'Processed'
-        elif self.__transaction_type == 'withdrawal':
-            account.withdrawal(self.__transaction_amt)
-            self.__status = 'Processed'
+            return False
+        try:
+            if self.__transaction_type == 'deposit':
+                account.deposit(self.__transaction_amt)
+            else:
+                account.withdrawal(self.__transaction_amt)
+        except FinanceError as error:
+            print(f'Transaction {self.__transaction_id} failed: {error}')
+            return False
+        self.__status = 'Processed'
+        return True
 
     def cancel_transaction(self):
         if self.__status == 'Pending':

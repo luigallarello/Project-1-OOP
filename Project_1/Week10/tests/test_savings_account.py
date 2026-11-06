@@ -1,5 +1,6 @@
 import pytest
 
+from finance_exceptions import InvalidAmountError, MinimumBalanceError
 from SavingsAccount import SavingsAccount
 
 
@@ -44,24 +45,28 @@ def test_withdrawal_down_to_exact_minimum_is_allowed(savings_account):
 
 
 def test_withdrawal_below_minimum_is_rejected(savings_account):
-    savings_account.withdrawal(901)
+    with pytest.raises(MinimumBalanceError):
+        savings_account.withdrawal(901)
     assert savings_account.get_current_balance() == 1000
 
 
 def test_rejected_withdrawal_records_no_transaction(savings_account):
-    savings_account.withdrawal(5000)
+    with pytest.raises(MinimumBalanceError):
+        savings_account.withdrawal(5000)
     assert savings_account.get_transactions() == []
 
 
 def test_invalid_withdrawal_amount_leaves_balance_unchanged(savings_account):
     for bad_amount in (0, -10, 'abc', None):
-        savings_account.withdrawal(bad_amount)
+        with pytest.raises(InvalidAmountError):
+            savings_account.withdrawal(bad_amount)
     assert savings_account.get_current_balance() == 1000
 
 
 def test_balance_under_minimum_cannot_withdraw_anything():
     account = SavingsAccount(50, 1, 'Priya', 0.02)
-    account.withdrawal(1)
+    with pytest.raises(MinimumBalanceError):
+        account.withdrawal(1)
     assert account.get_current_balance() == 50
 
 

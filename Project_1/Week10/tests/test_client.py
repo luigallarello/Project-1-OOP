@@ -2,6 +2,8 @@ import pytest
 
 from client import Client
 from EverydayAccount import EverydayAccount
+from finance_exceptions import AccountNotFoundError
+from transaction import Transaction
 
 
 def test_valid_construction_keeps_values(client):
@@ -85,8 +87,9 @@ def test_get_account_by_number_returns_same_object(client_with_accounts,
     assert client_with_accounts.get_account(11) is everyday_account
 
 
-def test_get_missing_account_returns_none(client_with_accounts):
-    assert client_with_accounts.get_account(999) is None
+def test_get_missing_account_raises(client_with_accounts):
+    with pytest.raises(AccountNotFoundError):
+        client_with_accounts.get_account(999)
 
 
 def test_duplicate_account_number_is_rejected(client_with_accounts,
@@ -129,7 +132,8 @@ def test_remove_account_returns_and_removes_it(client_with_accounts,
                                                savings_account):
     removed = client_with_accounts.remove_account(10)
     assert removed is savings_account
-    assert client_with_accounts.get_account(10) is None
+    with pytest.raises(AccountNotFoundError):
+        client_with_accounts.get_account(10)
     assert list(client_with_accounts.get_accounts()) == [11]
 
 
@@ -154,3 +158,61 @@ def test_set_preferred_branch_invalid_keeps_old_value(client, branch):
     message = client.set_preferred_branch('Central')
     assert client.get_preferred_branch() is branch
     assert 'Not a valid branch' in message
+
+
+def test_missing_account_error_names_client_and_account(client_with_accounts):
+    with pytest.raises(AccountNotFoundError) as excinfo:
+        client_with_accounts.get_account(999)
+    assert excinfo.value.client_no == 234
+    assert excinfo.value.account_number == 999
+    assert '234' in str(excinfo.value)
+    assert '999' in str(excinfo.value)
+
+
+def test_failed_lookup_leaves_accounts_unchanged(client_with_accounts):
+    before = dict(client_with_accounts.get_accounts())
+    with pytest.raises(AccountNotFoundError):
+        client_with_accounts.get_account(999)
+    assert dict(client_with_accounts.get_accounts()) == before
+
+
+def test_remove_missing_account_reports_the_error(client_with_accounts,
+                                                  capsys):
+    client_with_accounts.remove_account(999)
+    out = capsys.readouterr().out
+    assert 'Client 234 has no account numbered 999' in out
+
+
+def test_process_transaction_through_client(client_with_accounts,
+                                            pending_deposit):
+    assert client_with_accounts.process_transaction(
+        11, pending_deposit) is True
+    assert client_with_accounts.get_account(11).get_current_balance() == 1700
+    assert pending_deposit.get_status() == 'Processed'
+
+
+def test_process_transaction_for_missing_account_is_handled(
+        client_with_accounts, pending_deposit, capsys):
+    assert client_with_accounts.process_transaction(
+        999, pending_deposit) is False
+    assert pending_deposit.get_status() == 'Pending'
+    assert 'no account numbered 999' in capsys.readouterr().out
+    for number in (10, 11):
+        account = client_with_accounts.get_account(number)
+        assert account.get_transactions() == []
+
+
+def test_process_transaction_refused_by_account_is_handled(
+        client_with_accounts, capsys):
+    too_big = Transaction(7, 'withdrawal', 5000, 'Too big')
+    assert client_with_accounts.process_transaction(11, too_big) is False
+    assert too_big.get_status() == 'Pending'
+    assert 'maximum of $1000' in capsys.readouterr().out
+    account = client_with_accounts.get_account(11)
+    assert account.get_current_balance() == 1500
+    assert account.get_transactions() == []
+
+
+def test_process_transaction_rejects_non_transaction(client_with_accounts):
+    assert client_with_accounts.process_transaction(11, 'text') is False
+    assert client_with_accounts.get_account(11).get_transactions() == []

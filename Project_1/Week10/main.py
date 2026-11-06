@@ -1,143 +1,103 @@
+"""Project 1 demonstration: Client, Account and Transaction working together.
+
+Successful operations and operations that break a Finance rule are both
+shown. The Finance classes handle the expected exceptions themselves
+(see Client.process_transaction, Transaction.process_transaction and
+Client.remove_account), so this script never needs try / except and
+simply carries on after each failure.
+"""
 from client import Client
-from account import Account
-from transaction import Transaction
-from SavingsAccount import SavingsAccount
 from EverydayAccount import EverydayAccount
+from SavingsAccount import SavingsAccount
+from transaction import Transaction
 
 
-# # Workshop 5-1 Completed (Account is abstract - see Week 7 below)
-
-# # 1. Create several account objects
-# savings_1 = SavingsAccount(1000, 10, 'Priya', 0.02)
-# everyday_1 = EverydayAccount(500, 11, 'Priya')
-
-# # 2. Add the specialised accounts to a Client
-# client_4 = Client(234, 'Priya', 'Singh', 'priya@gmail.com', 27, 411222333)
-# client_4.add_account(savings_1)
-# client_4.add_account(everyday_1)
-# print(f'Client 4 accounts: {dict(client_4.get_accounts())}')
-
-# # 3. Demonstrate inherited behaviour (deposit, balance, transactions)
-# print('\nInherited behaviour')
-# savings_1.deposit(200)
-# everyday_1.deposit(150)
-# print(f'Savings balance: {savings_1.get_current_balance()}')
-# print(f'Everyday balance: {everyday_1.get_current_balance()}')
-
-# print('Savings transactions:')
-# for txn in savings_1.get_transactions():
-#     print(f'  {txn}')
-
-# print('Everyday transactions:')
-# for txn in everyday_1.get_transactions():
-#     print(f'  {txn}')
-
-# # 4. Demonstrate overridden behaviour (withdrawal rules)
-# print('\nOverridden behaviour')
-# print('Savings: valid withdrawal')
-# savings_1.withdrawal(300)
-
-# print('Savings: withdrawal that breaches the minimum balance')
-# savings_1.withdrawal(5000)
-
-# print('Everyday: valid withdrawal')
-# everyday_1.withdrawal(100)
-
-# print('Everyday: withdrawal above the maximum withdrawal amount')
-# everyday_1.withdrawal(2000)
-
-# # 5. Demonstrate isinstance()
-# print('\nisinstance() checks')
-# print(f'savings_1 is an Account: {isinstance(savings_1, Account)}')
-# print(f'everyday_1 is an Account: {isinstance(everyday_1, Account)}')
-# print(f'type(savings_1) is SavingsAccount: '
-#       f'{type(savings_1) is SavingsAccount}')
-# print(f'type(everyday_1) is EverydayAccount: '
-#       f'{type(everyday_1) is EverydayAccount}')
+def show_balances(client):
+    for number, account in client.get_accounts().items():
+        print(f'  {account.get_account_type()} account {number}: '
+              f'${account.get_current_balance()} '
+              f'({account.get_transaction_count()} transactions)')
 
 
-# # Week 7 - Abstract Account and polymorphism
-# #
-# # Account is abstract (ABC), so it is never created directly - only the
-# # concrete SavingsAccount and EverydayAccount are. Both are held in one
-# # list and the SAME withdrawal() call is made on each, with no type
-# # checks. Python picks each object's own rule at run time:
-# #   SavingsAccount  - balance may not drop below $100 minimum
-# #   EverydayAccount - a single withdrawal may not exceed $1000
-# print('\nPolymorphism: same withdrawal() call, different rules')
-# accounts = [
-#     SavingsAccount(1500, 12, 'Priya', 0.02),
-#     EverydayAccount(1500, 13, 'Priya'),
-# ]
+print('=== Setting up a Client with both account types ===')
+client = Client(235, 'Mia', 'Chen', 'mia@gmail.com', 31, 422333444)
+savings = SavingsAccount(2000, 20, 'Mia', 0.03)
+everyday = EverydayAccount(800, 21, 'Mia')
+client.add_account(savings)
+client.add_account(everyday)
+client.add_account(EverydayAccount(10, 20, 'Mia'))  # number 20 already held
+client.add_account('not an account')
+print(f'Account numbers held: {list(client.get_accounts())}')
+show_balances(client)
 
-# for amount in (1200, 250):
-#     print(f'\nWithdrawing ${amount} from every account')
-#     for account in accounts:
-#         print(f'{account.get_account_type()}:')
-#         account.withdrawal(amount)
+print('\n=== Successful operations ===')
+savings.deposit(500)
+savings.withdrawal(300)
+everyday.deposit(200)
+everyday.withdrawal(300)
 
-# print('\nFinal balances')
-# for account in accounts:
-#     print(f'{account.get_account_type()}: '
-#           f'${account.get_current_balance()}')
+wages = Transaction(1, 'deposit', 400, 'Wages')
+rent = Transaction(2, 'withdrawal', 450, 'Rent')
+print(f'Processing {wages.get_transaction_type()} of '
+      f'${wages.get_transaction_amt()} on account 21: '
+      f'{client.process_transaction(21, wages)}')
+print(f'Processing {rent.get_transaction_type()} of '
+      f'${rent.get_transaction_amt()} on account 21: '
+      f'{client.process_transaction(21, rent)}')
+print(f'Transaction statuses: wages={wages.get_status()}, '
+      f'rent={rent.get_status()}')
+show_balances(client)
 
+print('\n=== Operations that break a Finance rule ===')
+print('Everyday account: withdrawal above the $1000 maximum')
+too_big = Transaction(3, 'withdrawal', 1200, 'Holiday')
+client.process_transaction(21, too_big)
 
-# Week 8 - Data structures
-#
-# Client holds its accounts in a dict keyed by account number. Account
-# keeps its transactions in a list, oldest first. Both are reached only
-# through methods, never as the raw internal collection.
-client_5 = Client(235, 'Mia', 'Chen', 'mia@gmail.com', 31, 422333444)
-client_5.add_account(SavingsAccount(2000, 20, 'Mia', 0.03))
-client_5.add_account(EverydayAccount(800, 21, 'Mia'))
+print('\nEveryday account: withdrawal larger than the balance')
+overdraw = Transaction(4, 'withdrawal', 900, 'Car repair')
+client.process_transaction(21, overdraw)
 
-# Controlled access to the account list
+print('\nSavings account: withdrawal below the $100 minimum balance')
+below_minimum = Transaction(5, 'withdrawal', 2150, 'Laptop')
+client.process_transaction(20, below_minimum)
 
-client_5.add_account(EverydayAccount(10, 20, 'Mia'))
-client_5.add_account('not an account')
-print(f'Account numbers held: {list(client_5.get_accounts())}')
-print(f'get_accounts() hands out a read-only view, not the real dict: '
-      f'{type(client_5.get_accounts()).__name__}')
-client_5.get_account(99)
+print('\nSavings account: invalid amount')
+zero_deposit = Transaction(6, 'deposit', 0, 'Nothing')
+client.process_transaction(20, zero_deposit)
 
-# Get an account through the client, then make several transactions
-account = client_5.get_account(21)
-print(f'\nUsing account {account.get_account_number()} '
-      f'({account.get_account_type()}) found via the client')
-account.deposit(200)
-account.withdrawal(300)
-account.withdrawal(5000)
-account.withdrawal('abc')
-account.withdrawal(120)
-account.deposit(900)
-account.withdrawal(1000)
+print('\nAccount number the client does not hold')
+client.process_transaction(99, Transaction(7, 'deposit', 50, 'Gift'))
 
-# Processing the history
-print('\nFull history, in the order it happened')
-for txn in account.get_transactions():
+print('\nEvery failed transaction stays Pending:')
+for txn in (too_big, overdraw, below_minimum, zero_deposit):
+    print(f'  #{txn.get_transaction_id()} {txn.get_status()}')
+
+print('\nBalances and histories are unchanged by the failures:')
+show_balances(client)
+
+print('\n=== The program carries on after the failures ===')
+retry = Transaction(8, 'withdrawal', 900, 'Car repair (smaller)')
+client.process_transaction(21, Transaction(9, 'deposit', 300, 'Top up'))
+client.process_transaction(21, retry)
+print(f'Retry status: {retry.get_status()}')
+
+print('\n=== Same withdrawal() call, each account applies its own rule ===')
+for account in (savings, everyday):
+    print(f'{account.get_account_type()}: withdrawing $1050')
+    wd = Transaction(10, 'withdrawal', 1050, 'Same request')
+    wd.process_transaction(account)
+
+print('\n=== Transaction history (account 21) ===')
+for txn in everyday.get_transactions():
     print(f'  #{txn.get_transaction_id()} {txn.get_transaction_type():<10}'
           f' ${txn.get_transaction_amt()}')
+withdrawals = everyday.get_transactions_by_type('withdrawal')
+print(f'Withdrawals only: {[t.get_transaction_amt() for t in withdrawals]}')
+large = everyday.get_transactions_above(300)
+print(f'Transactions above $300: {[t.get_transaction_amt() for t in large]}')
 
-print(f'\nTotal transactions: {account.get_transaction_count()}')
-print(f'Deposits: {account.get_transaction_count("deposit")}, '
-      f'withdrawals: {account.get_transaction_count("withdrawal")}')
-
-print('Withdrawals only:')
-for txn in account.get_transactions_by_type('withdrawal'):
-    print(f'  #{txn.get_transaction_id()} ${txn.get_transaction_amt()}')
-
-print('Transactions above $250:')
-for txn in account.get_transactions_above(250):
-    print(f'  #{txn.get_transaction_id()} {txn.get_transaction_type()} '
-          f'${txn.get_transaction_amt()}')
-
-print(f'Final balance: ${account.get_current_balance()}')
-
-print('\nInvalid history requests are rejected')
-account.get_transactions_by_type('transfer')
-account.get_transactions_above('big')
-
-print('\nRemoving an account by number')
-client_5.remove_account(20)
-client_5.remove_account(20)
-print(f'Account numbers held: {list(client_5.get_accounts())}')
+print('\n=== Removing accounts ===')
+client.remove_account(20)
+client.remove_account(20)  # already removed - reported, program continues
+print(f'Account numbers held: {list(client.get_accounts())}')
+print(f'Final balance: ${everyday.get_current_balance()}')

@@ -1,4 +1,8 @@
 """Interactions between Client, Account and Transaction objects."""
+import pytest
+
+from finance_exceptions import (FinanceError, MinimumBalanceError,
+                                WithdrawalLimitError)
 from transaction import Transaction
 
 
@@ -33,8 +37,10 @@ def test_transactions_stay_in_order_with_sequential_ids(everyday_account):
 
 def test_failed_operations_do_not_consume_transaction_ids(everyday_account):
     everyday_account.deposit(100)
-    everyday_account.withdrawal(5000)
-    everyday_account.deposit(-5)
+    with pytest.raises(FinanceError):
+        everyday_account.withdrawal(5000)
+    with pytest.raises(FinanceError):
+        everyday_account.deposit(-5)
     everyday_account.deposit(200)
     ids = [t.get_transaction_id() for t in everyday_account.get_transactions()]
     assert ids == [1, 2]
@@ -115,20 +121,31 @@ def test_removed_account_keeps_its_state(client_with_accounts):
 def test_polymorphic_withdrawal_applies_each_accounts_own_rule(accounts):
     # 950 breaches the savings minimum ($100) but is under the everyday
     # maximum ($1000); no type checks - each account decides for itself.
-    for account in accounts:
-        account.withdrawal(950)
-    balances = [account.get_current_balance() for account in accounts]
-    assert balances == [1000, 550]
+    savings, everyday = accounts
+    with pytest.raises(MinimumBalanceError):
+        savings.withdrawal(950)
+    everyday.withdrawal(950)
+    assert [a.get_current_balance() for a in accounts] == [1000, 550]
 
 
 def test_polymorphic_large_withdrawal(accounts):
-    # 1200 is allowed by savings' rules only if the balance stays above $100,
-    # and breaks everyday's per-transaction maximum.
+    # 1200 is fine for savings (balance stays above $100) but breaks
+    # everyday's per-withdrawal maximum.
+    savings, everyday = accounts
     for account in accounts:
         account.deposit(500)
-        account.withdrawal(1200)
-    balances = [account.get_current_balance() for account in accounts]
-    assert balances == [300, 2000]
+    savings.withdrawal(1200)
+    with pytest.raises(WithdrawalLimitError):
+        everyday.withdrawal(1200)
+    assert [a.get_current_balance() for a in accounts] == [300, 2000]
+
+
+def test_polymorphic_failures_share_a_parent_exception(accounts):
+    # One except clause covers every account type's withdrawal failure.
+    for account in accounts:
+        with pytest.raises(FinanceError):
+            account.withdrawal(5000)
+    assert [a.get_current_balance() for a in accounts] == [1000, 1500]
 
 
 def test_polymorphic_account_types_are_distinct(accounts):

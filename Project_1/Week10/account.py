@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from finance_exceptions import InsufficientFundsError, InvalidAmountError
 from transaction import Transaction
 
 
@@ -17,7 +18,7 @@ class Account(ABC):
     (if any) currently holds it.
     """
 
-    def __init__(self, current_balance, account_number,account_holder_name):
+    def __init__(self, current_balance, account_number, account_holder_name):
         self.__current_balance = self.__validate_current_balance(
             current_balance)
         self.__account_number = self.__validate_account_number(
@@ -100,7 +101,6 @@ class Account(ABC):
             print(f'Rejected: {account_number!r} is not a valid '
                   f'account number')
 
-
     def set_account_holder_name(self, account_holder_name):
         if (isinstance(account_holder_name, str)
                 and account_holder_name.strip() != ''):
@@ -122,23 +122,25 @@ class Account(ABC):
                 f'account holder name={self.account_holder_name!r})')
 
     def _validate_amount(self, amount, label):
-        # Single underscore so subclasses can check an amount before
-        # applying their own withdrawal rule.
+        """Raise InvalidAmountError unless amount is a number above 0.
+
+        Single underscore so subclasses can check an amount before
+        applying their own withdrawal rule.
+        """
         if (isinstance(amount, (int, float))
                 and not isinstance(amount, bool) and amount > 0):
-            return True
-        print(f'Rejected: {amount!r} is not a valid {label} amount')
-        return False
+            return
+        raise InvalidAmountError(self.get_account_number(), amount, label)
 
     def __record_transaction(self, transaction_type, amount, desc):
-        txn = Transaction(self.__next_transaction_id, transaction_type, amount, desc,
-                          status='Processed')
+        txn = Transaction(self.__next_transaction_id, transaction_type,
+                          amount, desc, status='Processed')
         self.__transactions.append(txn)
         self.__next_transaction_id += 1
-        
+
     def deposit(self, deposit_amt):
-        if not self._validate_amount(deposit_amt, 'deposit'):
-            return
+        """Add funds; raises InvalidAmountError before changing anything."""
+        self._validate_amount(deposit_amt, 'deposit')
         self.__current_balance += deposit_amt
         self.__record_transaction('deposit', deposit_amt, 'Deposit')
         print(f'Your new balance is ${self.__current_balance}.')
@@ -148,28 +150,18 @@ class Account(ABC):
         """Withdraw funds under this account type's own rules.
 
         Subclasses apply their rule, then call super().withdrawal() to
-        reuse the shared validation and balance update below.
+        reuse the shared validation and balance update below. Raises
+        InvalidAmountError or InsufficientFundsError before any change
+        is made to the balance or the transaction history.
         """
-        if not self._validate_amount(withdrawal_amt, 'withdrawal'):
-            return
+        self._validate_amount(withdrawal_amt, 'withdrawal')
         if withdrawal_amt > self.__current_balance:
-            print(f'Not Enough Funds, you only have '
-                  f'${self.__current_balance}.')
-        else:
-            self.__current_balance -= withdrawal_amt
-            self.__record_transaction('withdrawal', withdrawal_amt, 'Withdrawal')
-            print(f'Your new balance is ${self.__current_balance}.')
+            raise InsufficientFundsError(self.get_account_number(),
+                                         self.__current_balance,
+                                         withdrawal_amt)
+        self.__current_balance -= withdrawal_amt
+        self.__record_transaction('withdrawal', withdrawal_amt, 'Withdrawal')
+        print(f'Your new balance is ${self.__current_balance}.')
 
     def display_current_balance(self):
         print(f'Your current Balance is ${self.__current_balance}.')
-
-    
-
-    
-            
-
-           
-
-
-
-        
