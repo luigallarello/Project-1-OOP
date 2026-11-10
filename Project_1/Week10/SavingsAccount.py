@@ -1,5 +1,6 @@
 from account import Account
 from finance_exceptions import MinimumBalanceError
+from validation import is_number
 
 
 class SavingsAccount(Account):
@@ -20,9 +21,7 @@ class SavingsAccount(Account):
         return self.__interest_rate
 
     def set_interest_rate(self, interest_rate):
-        if (isinstance(interest_rate, (int, float))
-                and not isinstance(interest_rate, bool)
-                and interest_rate >= 0):
+        if is_number(interest_rate):
             self.__interest_rate = float(interest_rate)
             return True
         print('Not a valid interest rate')
@@ -34,7 +33,8 @@ class SavingsAccount(Account):
         Raises MinimumBalanceError (or the errors from Account) before
         the balance or transaction history is changed.
         """
-        self._validate_amount(withdrawal_amt, 'withdrawal')
+        self._check_amount(withdrawal_amt, 'withdrawal')
+        # Check the rule before calling super() so nothing changes on failure.
         balance = self.get_current_balance()
         if balance - withdrawal_amt < self.MINIMUM_BALANCE:
             raise MinimumBalanceError(self.get_account_number(), balance,

@@ -25,7 +25,9 @@ savings = SavingsAccount(2000, 20, 'Mia', 0.03)
 everyday = EverydayAccount(800, 21, 'Mia')
 client.add_account(savings)
 client.add_account(everyday)
-client.add_account(EverydayAccount(10, 20, 'Mia'))  # number 20 already held
+# Both of these are rejected: account number 20 is already held, and a
+# string is not an Account.
+client.add_account(EverydayAccount(10, 20, 'Mia'))
 client.add_account('not an account')
 print(f'Account numbers held: {list(client.get_accounts())}')
 show_balances(client)
@@ -75,12 +77,14 @@ for txn in (too_big, overdraw, below_minimum, zero_deposit):
 print('\nBalances and histories are unchanged by the failures:')
 show_balances(client)
 
+# The failed transactions above changed nothing, so new ones still work.
 print('\n=== The program carries on after the failures ===')
 retry = Transaction(8, 'withdrawal', 900, 'Car repair (smaller)')
 client.process_transaction(21, Transaction(9, 'deposit', 300, 'Top up'))
 client.process_transaction(21, retry)
 print(f'Retry status: {retry.get_status()}')
 
+# The same call is made on each account, and each applies its own rule.
 print('\n=== Same withdrawal() call, each account applies its own rule ===')
 for account in (savings, everyday):
     print(f'{account.get_account_type()}: withdrawing $1050')
@@ -97,7 +101,9 @@ large = everyday.get_transactions_above(300)
 print(f'Transactions above $300: {[t.get_transaction_amt() for t in large]}')
 
 print('\n=== Removing accounts ===')
+# The second removal is reported as a missing account and the program
+# carries on.
 client.remove_account(20)
-client.remove_account(20)  # already removed - reported, program continues
+client.remove_account(20)
 print(f'Account numbers held: {list(client.get_accounts())}')
 print(f'Final balance: ${everyday.get_current_balance()}')

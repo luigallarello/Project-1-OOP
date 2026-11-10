@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from finance_exceptions import InsufficientFundsError, InvalidAmountError
 from transaction import Transaction
+from validation import is_non_empty_string, is_number, is_whole_number
 
 
 class Account(ABC):
@@ -23,7 +24,7 @@ class Account(ABC):
             current_balance)
         self.__account_number = self.__validate_account_number(
             account_number)
-        self.account_holder_name = self.__validate_account_holder_name(
+        self.__account_holder_name = self.__validate_account_holder_name(
             account_holder_name)
         self.__transactions = []
         self.__next_transaction_id = 1
@@ -44,7 +45,7 @@ class Account(ABC):
 
     def get_transactions_by_type(self, transaction_type):
         """History filtered to 'deposit' or 'withdrawal', in order."""
-        if transaction_type not in ('deposit', 'withdrawal'):
+        if transaction_type not in Transaction.TRANSACTION_TYPES:
             print(f'Rejected: {transaction_type!r} is not a valid '
                   f'transaction type')
             return []
@@ -53,34 +54,28 @@ class Account(ABC):
 
     def get_transactions_above(self, amount):
         """History entries larger than amount, in order."""
-        if (not isinstance(amount, (int, float))
-                or isinstance(amount, bool)):
+        if not is_number(amount, minimum=None):
             print(f'Rejected: {amount!r} is not a valid amount')
             return []
         return [txn for txn in self.__transactions
                 if txn.get_transaction_amt() > amount]
 
     def __validate_current_balance(self, current_balance):
-        if (isinstance(current_balance, (int, float))
-                and not isinstance(current_balance, bool)
-                and current_balance >= 0):
+        if is_number(current_balance):
             return current_balance
         print(f'Invalid current balance {current_balance!r} - '
               f'defaulting to 0')
         return 0
 
     def __validate_account_number(self, account_number):
-        if (isinstance(account_number, int)
-                and not isinstance(account_number, bool)
-                and account_number >= 0):
+        if is_whole_number(account_number):
             return account_number
         print(f'Invalid account number {account_number!r} - '
               f'defaulting to 0')
         return 0
 
     def __validate_account_holder_name(self, account_holder_name):
-        if (isinstance(account_holder_name, str)
-                and account_holder_name.strip() != ''):
+        if is_non_empty_string(account_holder_name):
             return account_holder_name
         print(f'Invalid account holder name {account_holder_name!r} - '
               f'defaulting to "Unknown"')
@@ -93,18 +88,23 @@ class Account(ABC):
         return self.__account_number
 
     def set_account_number(self, account_number):
-        if (isinstance(account_number, int)
-                and not isinstance(account_number, bool)
-                and account_number >= 0):
+        if is_whole_number(account_number):
             self.__account_number = account_number
         else:
             print(f'Rejected: {account_number!r} is not a valid '
                   f'account number')
 
+    @property
+    def account_holder_name(self):
+        return self.__account_holder_name
+
+    @account_holder_name.setter
+    def account_holder_name(self, account_holder_name):
+        self.set_account_holder_name(account_holder_name)
+
     def set_account_holder_name(self, account_holder_name):
-        if (isinstance(account_holder_name, str)
-                and account_holder_name.strip() != ''):
-            self.account_holder_name = account_holder_name
+        if is_non_empty_string(account_holder_name):
+            self.__account_holder_name = account_holder_name
         else:
             print(f'Rejected: {account_holder_name!r} is not a valid '
                   f'account holder name')
@@ -113,7 +113,7 @@ class Account(ABC):
         return (f'Current Balance: {self.get_current_balance()}\n'
                 f' Account Number: {self.get_account_number()}\n'
                 f' Type: {self.get_account_type()}\n'
-                f' Account Name: {self.account_holder_name}')
+                f' Account Name: {self.__account_holder_name}')
 
     def __repr__(self):
         return (f'Account(current balance={self.get_current_balance()!r}, '
@@ -121,14 +121,13 @@ class Account(ABC):
                 f'type={self.get_account_type()!r}, '
                 f'account holder name={self.account_holder_name!r})')
 
-    def _validate_amount(self, amount, label):
+    def _check_amount(self, amount, label):
         """Raise InvalidAmountError unless amount is a number above 0.
 
         Single underscore so subclasses can check an amount before
         applying their own withdrawal rule.
         """
-        if (isinstance(amount, (int, float))
-                and not isinstance(amount, bool) and amount > 0):
+        if is_number(amount, inclusive=False):
             return
         raise InvalidAmountError(self.get_account_number(), amount, label)
 
@@ -140,7 +139,8 @@ class Account(ABC):
 
     def deposit(self, deposit_amt):
         """Add funds; raises InvalidAmountError before changing anything."""
-        self._validate_amount(deposit_amt, 'deposit')
+        self._check_amount(deposit_amt, 'deposit')
+        # The balance changes only after the amount has been validated.
         self.__current_balance += deposit_amt
         self.__record_transaction('deposit', deposit_amt, 'Deposit')
         print(f'Your new balance is ${self.__current_balance}.')
@@ -154,7 +154,7 @@ class Account(ABC):
         InvalidAmountError or InsufficientFundsError before any change
         is made to the balance or the transaction history.
         """
-        self._validate_amount(withdrawal_amt, 'withdrawal')
+        self._check_amount(withdrawal_amt, 'withdrawal')
         if withdrawal_amt > self.__current_balance:
             raise InsufficientFundsError(self.get_account_number(),
                                          self.__current_balance,

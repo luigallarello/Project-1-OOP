@@ -82,6 +82,11 @@ def test_transactions_by_invalid_type_returns_empty_list(everyday_account):
     assert everyday_account.get_transaction_count('transfer') == 0
 
 
+def test_transactions_above_accepts_a_negative_amount(everyday_account):
+    everyday_account.deposit(100)
+    assert len(everyday_account.get_transactions_above(-1)) == 1
+
+
 def test_transactions_above_amount(everyday_account):
     everyday_account.deposit(100)
     everyday_account.deposit(500)
@@ -90,7 +95,8 @@ def test_transactions_above_amount(everyday_account):
     assert [t.get_transaction_amt() for t in above] == [500]
 
 
-def test_transactions_above_invalid_amount_returns_empty_list(everyday_account):
+def test_transactions_above_invalid_amount_returns_empty_list(
+        everyday_account):
     everyday_account.deposit(100)
     assert everyday_account.get_transactions_above('big') == []
     assert everyday_account.get_transactions_above(True) == []

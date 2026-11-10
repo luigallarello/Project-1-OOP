@@ -1,0 +1,20 @@
+Name                                             Stmts   Miss  Cover   Missing
+------------------------------------------------------------------------------
+EverydayAccount.py                                  13      0   100%
+SavingsAccount.py                                   24      0   100%
+account.py                                          89      0   100%
+branch.py                                           87      0   100%
+client.py                                          132      0   100%
+finance_exceptions/__init__.py                       9      0   100%
+finance_exceptions/account_not_found_error.py        6      0   100%
+finance_exceptions/finance_error.py                  1      0   100%
+finance_exceptions/insufficient_funds_error.py       4      0   100%
+finance_exceptions/invalid_amount_error.py           7      0   100%
+finance_exceptions/minimum_balance_error.py          5      0   100%
+finance_exceptions/transaction_status_error.py       6      0   100%
+finance_exceptions/withdrawal_error.py               7      0   100%
+finance_exceptions/withdrawal_limit_error.py         5      0   100%
+transaction.py                                      96      0   100%
+validation.py                                       12      0   100%
+------------------------------------------------------------------------------
+TOTAL                                              503      0   100%

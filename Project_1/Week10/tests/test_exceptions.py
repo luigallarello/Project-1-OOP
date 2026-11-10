@@ -4,8 +4,8 @@ import pytest
 from EverydayAccount import EverydayAccount
 from finance_exceptions import (AccountNotFoundError, FinanceError,
                                 InsufficientFundsError, InvalidAmountError,
-                                MinimumBalanceError, WithdrawalError,
-                                WithdrawalLimitError)
+                                MinimumBalanceError, TransactionStatusError,
+                                WithdrawalError, WithdrawalLimitError)
 from SavingsAccount import SavingsAccount
 
 
@@ -15,7 +15,8 @@ def snapshot(account):
 
 
 @pytest.mark.parametrize('error_class', [
-    InvalidAmountError, AccountNotFoundError, WithdrawalError,
+    InvalidAmountError, AccountNotFoundError, TransactionStatusError,
+    WithdrawalError,
     InsufficientFundsError, MinimumBalanceError, WithdrawalLimitError])
 def test_every_exception_is_a_finance_error(error_class):
     assert issubclass(error_class, FinanceError)
@@ -35,6 +36,13 @@ def test_invalid_amount_error_details():
     assert 'Account 7' in str(error)
     assert '-5' in str(error)
     assert 'deposit' in str(error)
+
+
+def test_transaction_status_error_details():
+    error = TransactionStatusError(4, 'Cancelled')
+    assert (error.transaction_id, error.status) == (4, 'Cancelled')
+    assert 'Transaction 4' in str(error)
+    assert 'Cancelled' in str(error)
 
 
 def test_account_not_found_error_details():

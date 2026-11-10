@@ -41,7 +41,8 @@ def test_valid_withdrawal_reduces_balance(savings_account):
 
 def test_withdrawal_down_to_exact_minimum_is_allowed(savings_account):
     savings_account.withdrawal(900)
-    assert savings_account.get_current_balance() == SavingsAccount.MINIMUM_BALANCE
+    assert (savings_account.get_current_balance()
+            == SavingsAccount.MINIMUM_BALANCE)
 
 
 def test_withdrawal_below_minimum_is_rejected(savings_account):
@@ -63,11 +64,22 @@ def test_invalid_withdrawal_amount_leaves_balance_unchanged(savings_account):
     assert savings_account.get_current_balance() == 1000
 
 
-def test_balance_under_minimum_cannot_withdraw_anything():
-    account = SavingsAccount(50, 1, 'Priya', 0.02)
+def test_balance_under_minimum_cannot_withdraw_anything(
+        savings_below_minimum):
     with pytest.raises(MinimumBalanceError):
-        account.withdrawal(1)
-    assert account.get_current_balance() == 50
+        savings_below_minimum.withdrawal(1)
+    assert savings_below_minimum.get_current_balance() == 50
+
+
+def test_account_on_the_minimum_cannot_withdraw_anything(savings_at_minimum):
+    with pytest.raises(MinimumBalanceError):
+        savings_at_minimum.withdrawal(1)
+    assert savings_at_minimum.get_current_balance() == 100
+
+
+def test_account_on_the_minimum_can_still_deposit(savings_at_minimum):
+    savings_at_minimum.deposit(50)
+    assert savings_at_minimum.get_current_balance() == 150
 
 
 def test_deposit_inherited_from_account(savings_account):

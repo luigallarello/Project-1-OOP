@@ -20,7 +20,8 @@ class EverydayAccount(Account):
         Raises WithdrawalLimitError (or the errors from Account) before
         the balance or transaction history is changed.
         """
-        self._validate_amount(withdrawal_amt, 'withdrawal')
+        self._check_amount(withdrawal_amt, 'withdrawal')
+        # Check the rule before calling super() so nothing changes on failure.
         if withdrawal_amt > self.MAX_WITHDRAWAL:
             raise WithdrawalLimitError(self.get_account_number(),
                                        self.get_current_balance(),

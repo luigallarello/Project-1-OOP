@@ -20,6 +20,30 @@ def everyday_account():
 
 
 @pytest.fixture
+def savings_at_minimum():
+    """Savings account sitting exactly on its $100 minimum balance."""
+    return SavingsAccount(100, 12, 'Mia', 0.03)
+
+
+@pytest.fixture
+def savings_below_minimum():
+    """Savings account already under its minimum balance ($50)."""
+    return SavingsAccount(50, 13, 'Mia', 0.03)
+
+
+@pytest.fixture
+def empty_everyday_account():
+    """Everyday account with nothing in it."""
+    return EverydayAccount(0, 14, 'Mia')
+
+
+@pytest.fixture
+def small_everyday_account():
+    """Everyday account holding $400, well under its withdrawal maximum."""
+    return EverydayAccount(400, 15, 'Mia')
+
+
+@pytest.fixture
 def accounts(savings_account, everyday_account):
     """One of each concrete account type, for polymorphism tests."""
     return [savings_account, everyday_account]
@@ -46,6 +70,12 @@ def branch():
 
 
 @pytest.fixture
+def open_branch():
+    """An open branch."""
+    return Branch(2, 'North', 'Perth', 291234568, is_open=True)
+
+
+@pytest.fixture
 def pending_deposit():
     """Pending $200 deposit transaction."""
     return Transaction(1, 'deposit', 200, 'Pay')
@@ -55,3 +85,9 @@ def pending_deposit():
 def pending_withdrawal():
     """Pending $300 withdrawal transaction."""
     return Transaction(2, 'withdrawal', 300, 'Rent')
+
+
+@pytest.fixture
+def cancelled_transaction():
+    """Cancelled $50 deposit transaction."""
+    return Transaction(3, 'deposit', 50, 'Gift', status='Cancelled')

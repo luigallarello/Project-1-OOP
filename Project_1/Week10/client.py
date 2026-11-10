@@ -4,6 +4,7 @@ from account import Account
 from branch import Branch
 from finance_exceptions import AccountNotFoundError
 from transaction import Transaction
+from validation import is_non_empty_string, is_whole_number
 
 
 class Client:
@@ -20,8 +21,8 @@ class Client:
     def __init__(self, client_no, first_name, last_name, email, age,
                  phone_no):
         self.__client_no = self.__validate_client_no(client_no)
-        self.first_name = self.__validate_name(first_name, 'first name')
-        self.last_name = self.__validate_name(last_name, 'last name')
+        self.__first_name = self.__validate_name(first_name, 'first name')
+        self.__last_name = self.__validate_name(last_name, 'last name')
         self.__email = self.__validate_email(email)
         self.__age = self.__validate_age(age)
         self.__phone_no = self.__validate_phone_no(phone_no)
@@ -29,61 +30,77 @@ class Client:
         self.__preferred_branch = None
 
     def __validate_client_no(self, client_no):
-        if (isinstance(client_no, int) and not isinstance(client_no, bool)
-                and client_no >= 0):
+        if is_whole_number(client_no):
             return client_no
         print(f'Invalid Client Number {client_no!r} - defaulting to 0')
         return 0
 
     def __validate_name(self, name, field_label):
-        if isinstance(name, str) and name.strip() != '':
+        if is_non_empty_string(name):
             return name
         print(f'Invalid {field_label} {name!r} - defaulting to "Unknown"')
         return 'Unknown'
 
     def __validate_email(self, email):
-        if isinstance(email, str) and email.strip() != '':
+        if is_non_empty_string(email):
             return email
         print(f'Invalid email {email!r} - defaulting to unknown')
         return 'unknown'
 
     def __validate_age(self, age):
-        if (isinstance(age, int) and not isinstance(age, bool)
-                and 0 <= age <= 120):
+        if is_whole_number(age, maximum=120):
             return age
         print(f'Invalid age {age!r} - defaulting to 0')
         return 0
 
     def __validate_phone_no(self, phone_no):
-        if (isinstance(phone_no, int) and not isinstance(phone_no, bool)
-                and phone_no >= 0):
+        if is_whole_number(phone_no):
             return phone_no
         print(f'Invalid phone number {phone_no!r} - defaulting to 0')
         return 0
 
+    @property
+    def first_name(self):
+        return self.__first_name
+
+    @first_name.setter
+    def first_name(self, first_name):
+        if is_non_empty_string(first_name):
+            self.__first_name = first_name
+        else:
+            print(f'Rejected: {first_name!r} is not a valid first name')
+
+    @property
+    def last_name(self):
+        return self.__last_name
+
+    @last_name.setter
+    def last_name(self, last_name):
+        if is_non_empty_string(last_name):
+            self.__last_name = last_name
+        else:
+            print(f'Rejected: {last_name!r} is not a valid last name')
+
     def set_client_no(self, client_no):
-        if (isinstance(client_no, int) and not isinstance(client_no, bool)
-                and client_no >= 0):
+        if is_whole_number(client_no):
             self.__client_no = client_no
         else:
             print(f'Rejected: {client_no!r} is not a valid client number')
 
     def set_email(self, email):
-        if isinstance(email, str) and email.strip() != '':
+        if is_non_empty_string(email):
             self.__email = email
         else:
             print(f'Rejected: {email!r} is not a valid email')
 
     def set_age(self, age):
-        if (isinstance(age, int) and not isinstance(age, bool)
-                and 0 <= age <= 120):
+        if is_whole_number(age, maximum=120):
             self.__age = age
         else:
             print(f'Rejected: {age!r} is not a valid age')
 
     def set_phone_no(self, phone_no):
-        if (isinstance(phone_no, int) and not isinstance(phone_no, bool)
-                and phone_no >= 0):
+        if is_whole_number(phone_no):
             self.__phone_no = phone_no
         else:
             print(f'Rejected: {phone_no!r} is not a valid phone number')
@@ -102,7 +119,7 @@ class Client:
 
     def __str__(self):
         return (f'Client Number: {self.get_client_no()}\n'
-                f' Client Name: {self.first_name}{self.last_name}\n'
+                f' Client Name: {self.first_name} {self.last_name}\n'
                 f' Phone Number: {self.get_phone_no()}')
 
     def __repr__(self):
@@ -114,12 +131,12 @@ class Client:
                 f'phone number={self.get_phone_no()!r})')
 
     def display_contact_info(self):
-        print(f'''Client Number: {self.get_client_no()},\n
-            First Name: {self.first_name},\n
-            Last Name: {self.last_name},\n
-            Email: {self.get_email()},\n
-            Age: {self.get_age()},\n
-            Phone No: {self.get_phone_no()}''')
+        print(f'Client Number: {self.get_client_no()}\n'
+              f'First Name: {self.first_name}\n'
+              f'Last Name: {self.last_name}\n'
+              f'Email: {self.get_email()}\n'
+              f'Age: {self.get_age()}\n'
+              f'Phone No: {self.get_phone_no()}')
 
     def add_account(self, account):
         """Store an Account under its account number.
@@ -190,12 +207,17 @@ class Client:
         return MappingProxyType(self.__accounts)
 
     def set_preferred_branch(self, preferred_branch):
-        if isinstance(preferred_branch, Branch):
-            self.__preferred_branch = preferred_branch
-            return (f'{self.__preferred_branch} is now set to your '
-                    f'preferred branch')
-        else:
-            return 'Not a valid branch name, please enter a valid branch name'
+        """Choose a Branch as the preferred branch.
+
+        Returns True if set, False if rejected (not a Branch).
+        """
+        if not isinstance(preferred_branch, Branch):
+            print(f'Rejected: {preferred_branch!r} is not a Branch')
+            return False
+        self.__preferred_branch = preferred_branch
+        print(f'Branch {preferred_branch.branch_name} is now your '
+              f'preferred branch')
+        return True
 
     def get_preferred_branch(self):
         return self.__preferred_branch

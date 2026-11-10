@@ -1,4 +1,5 @@
 
+from EverydayAccount import EverydayAccount
 from transaction import Transaction
 
 
@@ -141,6 +142,13 @@ def test_cancel_processed_transaction_is_refused(pending_deposit,
     assert pending_deposit.get_status() == 'Processed'
 
 
+def test_cancelled_transaction_cannot_be_cancelled_again(
+        cancelled_transaction, capsys):
+    cancelled_transaction.cancel_transaction()
+    assert cancelled_transaction.get_status() == 'Cancelled'
+    assert 'already been cancelled' in capsys.readouterr().out
+
+
 def test_cancel_twice_stays_cancelled(pending_deposit, capsys):
     pending_deposit.cancel_transaction()
     capsys.readouterr()
@@ -149,7 +157,46 @@ def test_cancel_twice_stays_cancelled(pending_deposit, capsys):
     assert 'already been cancelled' in capsys.readouterr().out
 
 
-def test_update_transaction_uses_user_input(pending_deposit, monkeypatch):
-    monkeypatch.setattr('builtins.input', lambda prompt: 'Updated note')
-    pending_deposit.update_transaction()
+def test_update_transaction_replaces_the_description(pending_deposit):
+    pending_deposit.update_transaction('Updated note')
     assert pending_deposit.transaction_desc == 'Updated note'
+
+
+def test_update_transaction_rejects_invalid_description(pending_deposit):
+    pending_deposit.update_transaction(42)
+    assert pending_deposit.transaction_desc == 'Pay'
+
+
+def test_description_cannot_bypass_validation(pending_deposit):
+    pending_deposit.transaction_desc = None
+    assert pending_deposit.transaction_desc == 'Pay'
+    pending_deposit.transaction_desc = 'Bonus'
+    assert pending_deposit.transaction_desc == 'Bonus'
+
+
+def test_processed_transaction_cannot_be_processed_again(pending_deposit,
+                                                         everyday_account,
+                                                         capsys):
+    pending_deposit.process_transaction(everyday_account)
+    capsys.readouterr()
+    assert pending_deposit.process_transaction(everyday_account) is False
+    assert everyday_account.get_current_balance() == 1700
+    assert everyday_account.get_transaction_count() == 1
+    assert 'is Processed' in capsys.readouterr().out
+
+
+def test_cancelled_transaction_cannot_be_processed(cancelled_transaction,
+                                                   everyday_account):
+    assert cancelled_transaction.process_transaction(everyday_account) is False
+    assert cancelled_transaction.get_status() == 'Cancelled'
+    assert everyday_account.get_current_balance() == 1500
+    assert everyday_account.get_transactions() == []
+
+
+def test_failed_withdrawal_can_be_retried_after_a_deposit():
+    withdrawal = Transaction(1, 'withdrawal', 1000, 'Rent')
+    small = EverydayAccount(500, 30, 'Priya')
+    assert withdrawal.process_transaction(small) is False
+    small.deposit(600)
+    assert withdrawal.process_transaction(small) is True
+    assert small.get_current_balance() == 100

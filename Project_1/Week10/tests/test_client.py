@@ -66,6 +66,23 @@ def test_str_and_repr_show_client_details(client):
     assert 'Singh' in repr(client)
 
 
+def test_str_separates_first_and_last_name(client):
+    assert 'Priya Singh' in str(client)
+
+
+def test_names_cannot_bypass_validation(client, capsys):
+    client.first_name = ''
+    client.last_name = None
+    assert (client.first_name, client.last_name) == ('Priya', 'Singh')
+    assert capsys.readouterr().out.count('Rejected') == 2
+
+
+def test_names_accept_valid_assignment(client):
+    client.first_name = 'Mia'
+    client.last_name = 'Chen'
+    assert (client.first_name, client.last_name) == ('Mia', 'Chen')
+
+
 def test_display_contact_info_prints_details(client, capsys):
     client.display_contact_info()
     out = capsys.readouterr().out
@@ -106,9 +123,8 @@ def test_non_account_is_rejected(client):
     assert len(client.get_accounts()) == 0
 
 
-def test_accounts_dictionary_is_keyed_by_account_number(client_with_accounts,
-                                                         savings_account,
-                                                         everyday_account):
+def test_accounts_dictionary_is_keyed_by_account_number(
+        client_with_accounts, savings_account, everyday_account):
     assert dict(client_with_accounts.get_accounts()) == {
         10: savings_account, 11: everyday_account}
 
@@ -147,17 +163,24 @@ def test_removed_account_number_can_be_reused(client_with_accounts):
     assert client_with_accounts.add_account(EverydayAccount(5, 10, 'Priya'))
 
 
-def test_set_preferred_branch_valid(client, branch):
-    message = client.set_preferred_branch(branch)
+def test_set_preferred_branch_valid(client, branch, capsys):
+    assert client.set_preferred_branch(branch) is True
     assert client.get_preferred_branch() is branch
-    assert 'preferred branch' in message
+    assert 'preferred branch' in capsys.readouterr().out
 
 
-def test_set_preferred_branch_invalid_keeps_old_value(client, branch):
+def test_set_preferred_branch_invalid_keeps_old_value(client, branch, capsys):
     client.set_preferred_branch(branch)
-    message = client.set_preferred_branch('Central')
+    capsys.readouterr()
+    assert client.set_preferred_branch('Central') is False
     assert client.get_preferred_branch() is branch
-    assert 'Not a valid branch' in message
+    assert 'is not a Branch' in capsys.readouterr().out
+
+
+def test_preferred_branch_can_be_changed(client, branch, open_branch):
+    client.set_preferred_branch(branch)
+    client.set_preferred_branch(open_branch)
+    assert client.get_preferred_branch() is open_branch
 
 
 def test_missing_account_error_names_client_and_account(client_with_accounts):

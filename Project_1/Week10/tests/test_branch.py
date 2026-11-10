@@ -63,7 +63,44 @@ def test_str_and_repr_show_branch_details(branch):
     assert 'Sydney' in repr(branch)
 
 
-def test_update_phone_no_uses_user_input(branch, monkeypatch):
-    monkeypatch.setattr('builtins.input', lambda prompt: '288888888')
-    branch.update_phone_no()
+def test_update_phone_no_replaces_the_number(branch):
+    branch.update_phone_no(288888888)
     assert branch.phone_no == 288888888
+
+
+def test_update_phone_no_rejects_invalid_number(branch, capsys):
+    branch.update_phone_no('call me')
+    assert branch.phone_no == 291234567
+    assert 'not a valid phone number' in capsys.readouterr().out
+
+
+def test_attributes_cannot_bypass_validation(branch):
+    branch.phone_no = 'bad'
+    branch.branch_name = ''
+    branch.location = None
+    assert branch.phone_no == 291234567
+    assert branch.branch_name == 'Central'
+    assert branch.location == 'Sydney'
+
+
+def test_attributes_accept_valid_assignment(branch):
+    branch.phone_no = 299999999
+    branch.branch_name = 'Harbour'
+    branch.location = 'Newcastle'
+    assert (branch.phone_no, branch.branch_name, branch.location) == (
+        299999999, 'Harbour', 'Newcastle')
+
+
+def test_open_branch_fixture_is_open(open_branch):
+    assert open_branch.get_is_open() is True
+
+
+def test_open_branch_can_be_closed(open_branch):
+    open_branch.close_branch()
+    assert open_branch.get_is_open() is False
+
+
+def test_opening_an_open_branch_keeps_it_open(open_branch, capsys):
+    open_branch.open_branch()
+    assert open_branch.get_is_open() is True
+    assert 'already open' in capsys.readouterr().out

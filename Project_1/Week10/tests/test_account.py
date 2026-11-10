@@ -141,3 +141,11 @@ def test_base_withdrawal_validates_amount_for_subclasses_that_skip_it():
     assert account.get_current_balance() == 100
     account.withdrawal(40)
     assert account.get_current_balance() == 60
+
+
+def test_holder_name_cannot_bypass_validation(everyday_account):
+    everyday_account.account_holder_name = ''
+    everyday_account.account_holder_name = None
+    assert everyday_account.account_holder_name == 'Priya'
+    everyday_account.account_holder_name = 'Mia'
+    assert everyday_account.account_holder_name == 'Mia'

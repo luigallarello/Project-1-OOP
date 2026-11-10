@@ -32,17 +32,28 @@ def test_rejected_withdrawal_records_no_transaction(everyday_account):
     assert everyday_account.get_transactions() == []
 
 
-def test_can_withdraw_to_zero_balance():
-    account = EverydayAccount(400, 1, 'Priya')
-    account.withdrawal(400)
-    assert account.get_current_balance() == 0
+def test_can_withdraw_to_zero_balance(small_everyday_account):
+    small_everyday_account.withdrawal(400)
+    assert small_everyday_account.get_current_balance() == 0
 
 
-def test_insufficient_funds_under_maximum_is_rejected():
-    account = EverydayAccount(400, 1, 'Priya')
+def test_empty_account_cannot_withdraw(empty_everyday_account):
     with pytest.raises(InsufficientFundsError):
-        account.withdrawal(500)
-    assert account.get_current_balance() == 400
+        empty_everyday_account.withdrawal(1)
+    assert empty_everyday_account.get_current_balance() == 0
+    assert empty_everyday_account.get_transactions() == []
+
+
+def test_empty_account_can_receive_a_deposit(empty_everyday_account):
+    empty_everyday_account.deposit(75)
+    assert empty_everyday_account.get_current_balance() == 75
+
+
+def test_insufficient_funds_under_maximum_is_rejected(
+        small_everyday_account):
+    with pytest.raises(InsufficientFundsError):
+        small_everyday_account.withdrawal(500)
+    assert small_everyday_account.get_current_balance() == 400
 
 
 def test_invalid_withdrawal_amount_leaves_balance_unchanged(everyday_account):

@@ -1,4 +1,5 @@
-from finance_exceptions import FinanceError
+from finance_exceptions import FinanceError, TransactionStatusError
+from validation import is_number, is_whole_number
 
 
 class Transaction:
@@ -9,7 +10,13 @@ class Transaction:
     transaction, then lets it go. Its responsibility is the
     transaction's own data and its Pending/Processed/Cancelled
     status.
+
+    An invalid amount falls back to 0. Such a transaction can be created
+    but never processed, because an Account refuses an amount of 0.
     """
+
+    TRANSACTION_TYPES = ('deposit', 'withdrawal')
+    STATUSES = ('Pending', 'Processed', 'Cancelled')
 
     def __init__(self, transaction_id, transaction_type, transaction_amt,
                  transaction_desc, status='Pending'):
@@ -19,31 +26,26 @@ class Transaction:
             transaction_type)
         self.__transaction_amt = self.__validate_transaction_amt(
             transaction_amt)
-        self.transaction_desc = self.__validate_transaction_desc(
+        self.__transaction_desc = self.__validate_transaction_desc(
             transaction_desc)
         self.__status = self.__validate_status(status)
 
     def __validate_transaction_id(self, transaction_id):
-        if (isinstance(transaction_id, int)
-                and not isinstance(transaction_id, bool)
-                and transaction_id >= 0):
+        if is_whole_number(transaction_id):
             return transaction_id
         print(f'Invalid transaction ID {transaction_id!r} - '
               f'defaulting to 0')
         return 0
 
     def __validate_transaction_type(self, transaction_type):
-        if (isinstance(transaction_type, str)
-                and transaction_type in ('deposit', 'withdrawal')):
+        if transaction_type in self.TRANSACTION_TYPES:
             return transaction_type
         print(f'Invalid transaction type {transaction_type!r} - '
               f'defaulting to "deposit"')
         return 'deposit'
 
     def __validate_transaction_amt(self, transaction_amt):
-        if (isinstance(transaction_amt, (int, float))
-                and not isinstance(transaction_amt, bool)
-                and transaction_amt >= 0):
+        if is_number(transaction_amt):
             return transaction_amt
         print(f'Invalid transaction amount {transaction_amt!r} - '
               f'defaulting to 0')
@@ -57,8 +59,7 @@ class Transaction:
         return ''
 
     def __validate_status(self, status):
-        if (isinstance(status, str)
-                and status in ('Pending', 'Processed', 'Cancelled')):
+        if status in self.STATUSES:
             return status
         print(f'Invalid status {status!r} - defaulting to "Pending"')
         return 'Pending'
@@ -75,27 +76,30 @@ class Transaction:
     def get_status(self):
         return self.__status
 
+    @property
+    def transaction_desc(self):
+        return self.__transaction_desc
+
+    @transaction_desc.setter
+    def transaction_desc(self, transaction_desc):
+        self.set_transaction_desc(transaction_desc)
+
     def set_transaction_id(self, transaction_id):
-        if (isinstance(transaction_id, int)
-                and not isinstance(transaction_id, bool)
-                and transaction_id >= 0):
+        if is_whole_number(transaction_id):
             self.__transaction_id = transaction_id
         else:
             print(f'Rejected: {transaction_id!r} is not a valid '
                   f'transaction ID')
 
     def set_transaction_type(self, transaction_type):
-        if (isinstance(transaction_type, str)
-                and transaction_type in ('deposit', 'withdrawal')):
+        if transaction_type in self.TRANSACTION_TYPES:
             self.__transaction_type = transaction_type
         else:
             print(f'Rejected: {transaction_type!r} is not a valid '
                   f'transaction type')
 
     def set_transaction_amt(self, transaction_amt):
-        if (isinstance(transaction_amt, (int, float))
-                and not isinstance(transaction_amt, bool)
-                and transaction_amt >= 0):
+        if is_number(transaction_amt):
             self.__transaction_amt = transaction_amt
         else:
             print(f'Rejected: {transaction_amt!r} is not a valid '
@@ -103,7 +107,7 @@ class Transaction:
 
     def set_transaction_desc(self, transaction_desc):
         if isinstance(transaction_desc, str):
-            self.transaction_desc = transaction_desc
+            self.__transaction_desc = transaction_desc
         else:
             print(f'Rejected: {transaction_desc!r} is not a valid '
                   f'transaction description')
@@ -112,29 +116,35 @@ class Transaction:
         return (f'Transaction ID: {self.__transaction_id}\n'
                 f' Transaction type: {self.__transaction_type}\n'
                 f' Amount: {self.__transaction_amt}\n'
-                f' Description: {self.transaction_desc}\n'
+                f' Description: {self.__transaction_desc}\n'
                 f' Current Status: {self.__status}')
 
     def __repr__(self):
         return (f'Transaction(Transaction ID={self.__transaction_id!r}, '
                 f'Type={self.__transaction_type!r}, '
                 f'Amount={self.__transaction_amt!r}, '
-                f'Description={self.transaction_desc!r}, '
+                f'Description={self.__transaction_desc!r}, '
                 f'Status={self.__status!r})')
 
     def process_transaction(self, account):
         """Apply this transaction to an Account.
 
         Returns True when it was applied and the status becomes
-        'Processed'. If the Account refuses it (a FinanceError such as
+        'Processed'. Only a Pending transaction can be processed. If it is
+        not, or the Account refuses it (a FinanceError such as
         insufficient funds), the error is reported, the Account is left
         untouched, the status stays as it was and False is returned.
         """
+        # Imported here because account.py imports this module, so a
+        # top-level import would be circular.
         from account import Account
         if not isinstance(account, Account):
             print(f'Rejected: {account!r} is not a valid Account')
             return False
         try:
+            if self.__status != 'Pending':
+                raise TransactionStatusError(self.__transaction_id,
+                                             self.__status)
             if self.__transaction_type == 'deposit':
                 account.deposit(self.__transaction_amt)
             else:
@@ -154,6 +164,6 @@ class Transaction:
         elif self.__status == 'Cancelled':
             print('This transaction has already been cancelled.')
 
-    def update_transaction(self):
-        self.set_transaction_desc(
-            input('Please update transaction description: '))
+    def update_transaction(self, transaction_desc):
+        """Replace the description; an invalid description is rejected."""
+        self.set_transaction_desc(transaction_desc)
