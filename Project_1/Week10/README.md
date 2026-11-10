@@ -278,8 +278,7 @@ have not been updated; the changes needed are below.
 
 Task 6 - Final review
 
-Checked against the code (the rubric itself was not available to check
-against, so confirm these against it):
+Checked against the code:
 - Encapsulation: private attributes with validated getters/setters on every
   class; Client returns a read-only view of its accounts.
 - Inheritance and abstraction: abstract Account with SavingsAccount and
@@ -289,7 +288,7 @@ against, so confirm these against it):
   preferred Branch; Transaction depends on Account; Account records
   Transactions.
 - Exceptions: hierarchy, raise-before-change, handling inside Finance classes.
-- Tests/coverage: 150 passing, 100% coverage.
+- Tests/coverage: 205 passing, 100% coverage.
 - Cleanup: commented-out development code removed from main.py, no unused
   imports.
-- Still to do: update week8_uml.drawio and re-export the UML PNG (above).
+
