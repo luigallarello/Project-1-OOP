@@ -231,8 +231,8 @@ Task 5 - Demonstration (main.py)
 
 The old commented-out workshop blocks were removed (Week9 and earlier folders
 keep them). The demo now runs one Client with a SavingsAccount and an
-EverydayAccount: successful deposits/withdrawals directly and through
-Transactions, then one failure for each exception, a check that balances and
+EverydayAccount: successful deposits/withdrawals, all made through
+Transactions so every possible exception is handled, then one failure for each exception, a check that balances and
 histories are unchanged, a retry that succeeds to show the program carries
 on, the same withdrawal applied to both account types, history queries, and
 removing an account twice.
